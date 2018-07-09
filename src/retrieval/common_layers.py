@@ -47,7 +47,7 @@ def rnn_attention(inputs, attention_size, return_alphas, name_scope=None):
 
 
 def get_labels(tensor):
-    return tf.squeeze(tf.matrix_diag(tf.sign(tf.reshape(tensor, [1, -1]))), 0)
+    return tf.matrix_diag(tf.sign(tensor))
 
 
 def rnn_cell(hidden, num_layers=1, rnn_type='lstm', dropout=0.8, scope=None):

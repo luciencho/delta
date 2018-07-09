@@ -88,7 +88,7 @@ class DualEncoderModel(RetrievalModel):
             features['global_step'] = tf.Variable(0, trainable=False)
             features['x_lens'] = common_layers.length_last_axis(features['input_x'])
             features['y_lens'] = common_layers.length_last_axis(features['input_y'])
-            features['labels'] = common_layers.get_labels(features['input_x'])
+            features['labels'] = common_layers.get_labels(features['x_lens'])
         return features
 
     def embed_layer(self, features):
