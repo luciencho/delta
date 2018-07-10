@@ -119,14 +119,15 @@ class DualEncoderModel(RetrievalModel):
                 self.hparam.hidden,
                 self.hparam.num_layers,
                 self.hparam.rnn_type,
-                features['keep_prob'], 'x')
+                features['keep_prob'])
+            tf.get_variable_scope().reuse_variables()
             _, features['enc_y'] = common_layers.bidirectional_rnn(
                 features['emb_y'],
                 features['y_lens'],
                 self.hparam.hidden,
                 self.hparam.num_layers,
                 self.hparam.rnn_type,
-                features['keep_prob'], 'y')
+                features['keep_prob'])
         return features
 
     def interact_layer(self, features):

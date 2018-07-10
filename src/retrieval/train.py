@@ -79,7 +79,7 @@ def process(args):
                 input_x, input_y, idx, update_epoch = dev_batch.next_batch(
                     args.batch_size, recorder.dev_idx)
                 dev_features = {'input_x_ph': input_x,
-                                'input_y_ph': input_y, 'keep_prob_ph': args.keep_prob}
+                                'input_y_ph': input_y, 'keep_prob_ph': 1.0}
                 recorder.dev_idx = idx
                 dev_fetches, dev_feed = model.dev_step(dev_features)
                 dev_loss, dev_acc = sess.run(dev_fetches, dev_feed)
