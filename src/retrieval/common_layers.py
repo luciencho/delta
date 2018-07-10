@@ -54,7 +54,7 @@ def rnn_cell(hidden, num_layers=1, rnn_type='lstm', dropout=0.8, scope=None):
 
     def create_rnn_cell():
         cell = _allowed_rnn_type.get(rnn_type.lower(), 'rnn')(hidden, reuse=reuse)
-        return tf.contrib.rnn.DropoutWrapper(cell, dropout)
+        return tf.contrib.rnn.DropoutWrapper(cell, output_keep_prob=dropout)
 
     with tf.variable_scope(scope or 'rnn'):
         reuse = None if not tf.get_variable_scope().reuse else True
@@ -131,6 +131,10 @@ def conv_2d(embed_inputs, max_len, filter_sizes, num_filters, keep_prob):
 
 def get_embedding(word_vars, char_vars, inputs, keep_prob):
     word_emb, char_emb = tf.split(inputs, 2, axis=-1)
-    emb_words = tf.nn.embedding_lookup(word_vars, tf.squeeze(word_emb, -1))
-    emb_chars = tf.nn.embedding_lookup(char_vars, tf.squeeze(char_emb, -1))
-    return tf.nn.dropout(tf.concat([emb_words, emb_chars], axis=-1), keep_prob)
+    word_emb = tf.squeeze(word_emb, -1)
+    char_emb = tf.squeeze(char_emb, -1)
+    with tf.device('/cpu:0'):
+        emb_words = tf.nn.embedding_lookup(word_vars, word_emb)
+        emb_chars = tf.nn.embedding_lookup(char_vars, char_emb)
+    emb_outputs = tf.nn.dropout(tf.concat([emb_words, emb_chars], axis=-1), keep_prob)
+    return emb_outputs

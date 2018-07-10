@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6b5f3551-0041-4ff7-9a41-c81cdcb6d104" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/src/retrieval/common_layers.py" afterPath="$PROJECT_DIR$/src/retrieval/common_layers.py" />
       <change beforePath="$PROJECT_DIR$/src/retrieval/model.py" afterPath="$PROJECT_DIR$/src/retrieval/model.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -88,8 +89,8 @@
           <file leaf-file-name="model.py" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/src/retrieval/model.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="540">
-                  <caret line="105" column="36" lean-forward="true" selection-start-line="105" selection-start-column="36" selection-end-line="105" selection-end-column="36" />
+                <state relative-caret-position="2844">
+                  <caret line="188" column="0" lean-forward="true" selection-start-line="188" selection-start-column="0" selection-end-line="188" selection-end-column="0" />
                   <folding>
                     <element signature="e#15#54#0" expanded="true" />
                     <element signature="e#352#489#0" expanded="false" />
@@ -150,8 +151,8 @@
           <file leaf-file-name="common_layers.py" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/src/retrieval/common_layers.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="450">
-                  <caret line="25" column="0" lean-forward="true" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
+                <state relative-caret-position="228">
+                  <caret line="57" column="0" lean-forward="true" selection-start-line="57" selection-start-column="0" selection-end-line="57" selection-end-column="0" />
                   <folding>
                     <element signature="e#15#54#0" expanded="true" />
                   </folding>
@@ -250,9 +251,9 @@
         <option value="$PROJECT_DIR$/data_gen.py" />
         <option value="$PROJECT_DIR$/src/bin/trainer.py" />
         <option value="$PROJECT_DIR$/trainer.py" />
-        <option value="$PROJECT_DIR$/src/retrieval/common_layers.py" />
         <option value="$PROJECT_DIR$/src/retrieval/train.py" />
         <option value="$PROJECT_DIR$/src/retrieval/model.py" />
+        <option value="$PROJECT_DIR$/src/retrieval/common_layers.py" />
       </list>
     </option>
   </component>
@@ -666,19 +667,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/retrieval/common_layers.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="450">
-          <caret line="25" column="0" lean-forward="true" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
-          <folding>
-            <element signature="e#15#54#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/retrieval/train.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="461">
+        <state relative-caret-position="210">
           <caret line="76" column="0" lean-forward="true" selection-start-line="76" selection-start-column="0" selection-end-line="76" selection-end-column="0" />
           <folding>
             <element signature="e#15#54#0" expanded="true" />
@@ -688,8 +679,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/retrieval/model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="540">
-          <caret line="105" column="36" lean-forward="true" selection-start-line="105" selection-start-column="36" selection-end-line="105" selection-end-column="36" />
+        <state relative-caret-position="2682">
+          <caret line="181" column="17" lean-forward="false" selection-start-line="181" selection-start-column="8" selection-end-line="181" selection-end-column="17" />
           <folding>
             <element signature="e#15#54#0" expanded="true" />
             <element signature="e#352#489#0" expanded="false" />
@@ -697,6 +688,16 @@
             <element signature="e#699#824#0" expanded="false" />
             <element signature="e#874#1016#0" expanded="false" />
             <element signature="e#1055#1197#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/retrieval/common_layers.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="228">
+          <caret line="57" column="0" lean-forward="true" selection-start-line="57" selection-start-column="0" selection-end-line="57" selection-end-column="0" />
+          <folding>
+            <element signature="e#15#54#0" expanded="true" />
           </folding>
         </state>
       </provider>

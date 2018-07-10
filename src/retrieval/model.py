@@ -186,9 +186,3 @@ def solo_base():
         x_max_len=128,
         y_max_len=64)
     return hparams
-
-
-
-
-
-
