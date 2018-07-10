@@ -5,12 +5,12 @@ from __future__ import print_function
 
 from os.path import join
 from src import utils
-from src.data_utils import vocabulary
+from src.data_utils import vocab
 
 
 def process(hparam):
     utils.raise_inexistence(hparam.tmp_dir)
-    tokenizer = vocabulary.Tokenizer()
+    tokenizer = vocab.Tokenizer()
     all_data = []
     paths = [join(hparam.tmp_dir, i) for i in [
         'train_q.txt', 'train_a.txt', 'dev_q.txt', 'dev_a.txt']]

@@ -82,9 +82,9 @@ def bidirectional_rnn(inputs, seq_lens, hidden, num_layers=1,
         bw_cell = rnn_cell(hidden, num_layers, rnn_type, keep_prob, 'bw_cell')
         outputs, states = tf.nn.bidirectional_dynamic_rnn(
             fw_cell, bw_cell, inputs, seq_lens, dtype=tf.float32)
-    if rnn_type == 'lstm':
+    if rnn_type.lower() == 'lstm':
         return tf.concat(outputs, axis=-1), states[-1][-1].h
-    elif rnn_type == 'gru':
+    elif rnn_type.lower() == 'gru':
         return tf.concat(outputs, axis=-1), states[-1][-1]
 
 

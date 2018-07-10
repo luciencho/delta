@@ -9,8 +9,8 @@ import time
 
 from src import utils
 from src.retrieval.model import DualEncoderModel
-from src.data_utils.dataset import SoloBatch
-from src.data_utils.vocabulary import Tokenizer
+from src.data_utils.data import SoloBatch
+from src.data_utils.vocab import Tokenizer
 
 
 class Recorder(object):
@@ -60,9 +60,9 @@ def process(args):
 
     with tf.Session(config=config) as sess:
         sess.run(tf.global_variables_initializer())
-        starter = time.time()
         saver = tf.train.Saver(pad_step_number=True)
         recorder = Recorder()
+        starter = time.time()
 
         for i in range(args.max_steps):
             input_x, input_y, idx, update_epoch = train_batch.next_batch(

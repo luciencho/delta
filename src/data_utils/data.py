@@ -30,6 +30,9 @@ class SoloBatch(object):
                       self.tokenizer.PAD_ID)] * (max_len - len(wc_pairs))
         return wc_pairs
 
+    def encode_line(self, line):
+        return self._encode_line(line, self.max_lens[0])
+
     def _next_ids(self, interval, idx):
         start = idx % self.data_size
         end = start % self.data_size + interval
