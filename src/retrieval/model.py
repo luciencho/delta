@@ -92,13 +92,14 @@ class DualEncoderModel(RetrievalModel):
         return features
 
     def embed_layer(self, features):
-        with tf.variable_scope('embed_layer'), tf.device('/cpu:0'):
-            features['word_vars'] = tf.get_variable(
-                'word_vars', [self.hparam.word_size, self.hparam.emb_dim],
-                initializer=tf.contrib.layers.xavier_initializer())
-            features['char_vars'] = tf.get_variable(
-                'char_vars', [self.hparam.char_size, self.hparam.emb_dim],
-                initializer=tf.contrib.layers.xavier_initializer())
+        with tf.variable_scope('embed_layer'):
+            with tf.device('/cpu:0'):
+                features['word_vars'] = tf.get_variable(
+                    'word_vars', [self.hparam.word_size, self.hparam.emb_dim],
+                    initializer=tf.contrib.layers.xavier_initializer())
+                features['char_vars'] = tf.get_variable(
+                    'char_vars', [self.hparam.char_size, self.hparam.emb_dim],
+                    initializer=tf.contrib.layers.xavier_initializer())
             features['emb_x'] = common_layers.get_embedding(
                 features['word_vars'],
                 features['char_vars'],
