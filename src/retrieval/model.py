@@ -167,7 +167,7 @@ class DualEncoderModel(RetrievalModel):
         return features
 
 
-def solo_base():
+def solo_base():  # 3.114 30.39%
     hparams = tf.contrib.training.HParams(
         word_size=50000,
         char_size=5000,
