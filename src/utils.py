@@ -45,9 +45,9 @@ def write_lines(path, lines):
         f.write('\n'.join(lines))
 
 
-def write_result(args, loss, model_dir):
+def write_result(args, loss):
     lines = []
-    file_path = os.path.join(model_dir, '{}.{}'.format(int(time.time()), 'rst'))
+    file_path = os.path.join(args.tmp_dir, '{}.{}'.format(args.hparams, 'rst'))
     for k, v in args.__dict__.items():
         if not k.startswith('_'):
             lines.append('hparams.{}: [{}]'.format(k, v))
@@ -82,14 +82,14 @@ def get_args():
         if not k.startswith('_'):
             verbose('add attribute {} [{}] to hparams'.format(k, v))
             setattr(args, k, v)
-    args.path = {'model': os.path.join(args.model_dir, 'retrieval', 'model'),
+    args.path = {'model': os.path.join(args.model_dir, args.hparams, 'model'),
                  'vocab': [os.path.join(args.tmp_dir, '{}.vcb'.format(i)) for i in [
                      args.word_size, args.char_size]],
                  'train_x': os.path.join(args.tmp_dir, 'train_q.txt'),
                  'train_y': os.path.join(args.tmp_dir, 'train_a.txt'),
                  'dev_x': os.path.join(args.tmp_dir, 'dev_q.txt'),
                  'dev_y': os.path.join(args.tmp_dir, 'dev_a.txt'),
-                 'ann': os.path.join(args.model_dir, 'retrieval', 'ann')}
+                 'ann': os.path.join(args.model_dir, args.hparams, 'ann')}
     return args
 
 
