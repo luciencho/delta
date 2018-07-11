@@ -133,10 +133,12 @@ class DualEncoderModel(RetrievalModel):
 
     def interact_layer(self, features):
         with tf.variable_scope('interact_layer'):
+            transformed_enc_y = common_layers.linear(
+                features['enc_y'], features['enc_x'].shape[-1], True)
+            if self.hparam.use_layer_norm:
+                transformed_enc_y = common_layers.layer_norm(transformed_enc_y)
             features['logits'] = tf.matmul(
-                features['enc_x'], common_layers.linear(
-                    features['enc_y'], features['enc_x'].shape[-1], True),
-                transpose_b=True)
+                transformed_enc_y, features['enc_x'], transpose_b=True)
         return features
 
     def top(self, features):
@@ -172,6 +174,7 @@ def solo_lstm():  # 3.114 30.39%
         hidden=128,
         num_layers=1,
         rnn_type='lstm',
+        use_layer_norm=False,
         l2_weight=1e-5,
         learning_rate=5e-3,
         decay_rate=0.98,
@@ -193,4 +196,10 @@ def solo_gru():
 
 def solo_lstm_v1():
     hparams = solo_lstm()
+    return hparams
+
+
+def solo_lstm_ln():
+    hparams = solo_lstm()
+    hparams.use_layer_norm = True
     return hparams

@@ -76,6 +76,8 @@ def get_args():
         original = model.solo_lstm_v1()
     elif args.hparams == 'solo_gru':
         original = model.solo_gru()
+    elif args.hparams == 'solo_lstm_ln':
+        original = model.solo_lstm_ln()
     else:
         raise ValueError('Unknown hparams: {}'.format(args.hparams))
     for k, v in original.__dict__.items():
@@ -105,6 +107,8 @@ def data_gen_args():
         original = model.solo_lstm_v1()
     elif args.hparams == 'solo_gru':
         original = model.solo_gru()
+    elif args.hparams == 'solo_lstm_ln':
+        original = model.solo_lstm_ln()
     else:
         raise ValueError('Unknown hparams: {}'.format(args.hparams))
     for k, v in original.__dict__.items():
