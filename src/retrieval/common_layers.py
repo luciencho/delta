@@ -138,3 +138,87 @@ def get_embedding(word_vars, char_vars, inputs, keep_prob):
         emb_chars = tf.nn.embedding_lookup(char_vars, char_emb)
     emb_outputs = tf.nn.dropout(tf.concat([emb_words, emb_chars], axis=-1), keep_prob)
     return emb_outputs
+
+
+def linear(inputs, output_size, use_bias, concat=False, scope=None):
+    """
+    Linear layer
+    :param inputs: A Tensor or a list of Tensors with shape [batch, input_size]
+    :param output_size: An integer specify the output size
+    :param use_bias: a boolean value indicate whether to use bias term
+    :param concat: a boolean value indicate whether to concatenate all inputs
+    :param scope: the scope of this layer, the default value is ``linear''
+    :returns: a Tensor with shape [batch, output_size]
+    :raises RuntimeError: raises ``RuntimeError'' when input sizes do not
+                          compatible with each other
+    """
+    with tf.variable_scope(scope, default_name="linear", values=[inputs]):
+        if not isinstance(inputs, (list, tuple)):
+            inputs = [inputs]
+
+        input_size = [item.get_shape()[-1].value for item in inputs]
+
+        if len(inputs) != len(input_size):
+            raise RuntimeError("inputs and input_size unmatched!")
+
+        output_shape = tf.concat([tf.shape(inputs[0])[:-1], [output_size]],
+                                 axis=0)
+        # Flatten to 2D
+        inputs = [tf.reshape(inp, [-1, inp.shape[-1].value]) for inp in inputs]
+
+        results = []
+
+        if concat:
+            input_size = sum(input_size)
+            inputs = tf.concat(inputs, 1)
+
+            shape = [input_size, output_size]
+            matrix = tf.get_variable("matrix", shape, dtype=tf.float32,
+                                     initializer=tf.truncated_normal_initializer())
+            results.append(tf.matmul(inputs, matrix))
+        else:
+            for i in range(len(input_size)):
+                shape = [input_size[i], output_size]
+                name = "matrix_%d" % i
+                matrix = tf.get_variable(name, shape, dtype=tf.float32,
+                                         initializer=tf.truncated_normal_initializer())
+                results.append(tf.matmul(inputs[i], matrix))
+
+        output = tf.add_n(results)
+
+        if use_bias:
+            shape = [output_size]
+            bias = tf.get_variable("bias", shape, dtype=tf.float32)
+            output = tf.nn.bias_add(output, bias)
+
+        output = tf.reshape(output, output_shape)
+
+        return output
+
+
+def layer_norm(inputs, epsilon=1e-6, dtype=None, scope=None):
+    """
+    Layer Normalization
+    :param inputs: A Tensor of shape [..., channel_size]
+    :param epsilon: A floating number
+    :param dtype: An optional instance of tf.DType
+    :param scope: An optional string
+    :returns: A Tensor with the same shape as inputs
+    """
+    with tf.variable_scope(scope, default_name="layer_norm", values=[inputs],
+                           dtype=dtype):
+        channel_size = inputs.get_shape().as_list()[-1]
+
+        scale = tf.get_variable("scale", shape=[channel_size],
+                                initializer=tf.ones_initializer())
+
+        offset = tf.get_variable("offset", shape=[channel_size],
+                                 initializer=tf.zeros_initializer())
+
+        mean = tf.reduce_mean(inputs, axis=-1, keep_dims=True)
+        variance = tf.reduce_mean(tf.square(inputs - mean), axis=-1,
+                                  keep_dims=True)
+
+        norm_inputs = (inputs - mean) * tf.rsqrt(variance + epsilon)
+
+        return norm_inputs * scale + offset

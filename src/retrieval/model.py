@@ -133,13 +133,10 @@ class DualEncoderModel(RetrievalModel):
 
     def interact_layer(self, features):
         with tf.variable_scope('interact_layer'):
-            w = tf.get_variable(
-                'linear_w',
-                [features['enc_x'].shape[-1], features['enc_y'].shape[-1]],
-                initializer=tf.truncated_normal_initializer())
             features['logits'] = tf.matmul(
-                features['enc_x'],
-                tf.matmul(features['enc_y'], w), transpose_b=True)
+                features['enc_x'], common_layers.linear(
+                    features['enc_y'], features['enc_x'].shape[-1], True),
+                transpose_b=True)
         return features
 
     def top(self, features):
