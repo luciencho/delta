@@ -145,8 +145,7 @@ class DualEncoderModel(RetrievalModel):
     def top(self, features):
         with tf.variable_scope('top'):
             features['losses'] = tf.losses.softmax_cross_entropy(
-                features['labels'], features['logits'],
-                label_smoothing=self.hparam.label_smoothing)
+                features['labels'], features['logits'])
             features['acc'] = tf.contrib.metrics.accuracy(
                 predictions=tf.argmax(features['logits'], axis=-1),
                 labels=tf.argmax(features['labels'], axis=-1))
@@ -177,7 +176,6 @@ def solo_lstm():  # 3.114 30.39%
         num_layers=1,
         rnn_type='lstm',
         l2_weight=1e-5,
-        label_smoothing=0.0,
         learning_rate=5e-3,
         decay_rate=0.98,
         keep_prob=0.7,
@@ -198,5 +196,4 @@ def solo_gru():
 
 def solo_lstm_v1():
     hparams = solo_lstm()
-    hparams.label_smoothing = 0.5
     return hparams
