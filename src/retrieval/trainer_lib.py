@@ -102,5 +102,4 @@ def process(args):
                         i - args.save_steps, i, features['train_loss'],
                         features['train_acc'], features['dev_loss'], features['dev_acc']))
                 print('-+' * 55)
-
-    utils.write_result(args, recorder.lowest_loss)
+                utils.write_result(args, recorder.lowest_loss)
