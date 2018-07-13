@@ -12,7 +12,7 @@ from src.data_utils.vocab import Tokenizer
 class Searcher(object):
     def __init__(self, args):
         tokenizer = Tokenizer(args.path['vocab'])
-        keywords = load_keywords(args)
+        keywords = load_keywords(args.path['keyword'])
         self.ss_model = SentSimModel(tokenizer, keywords, args.vocab_size)
         self.ss_model.set_data(utils.read_lines(args.path['train_x']))
         self.ss_model.simple_data()

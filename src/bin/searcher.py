@@ -11,8 +11,9 @@ from src.retrieval import searcher_lib as retrieval_searcher_lib
 from src.retrieval_trad import searcher_lib as retrieval_trad_searcher_lib
 
 
-retrieval_searcher = retrieval_searcher_lib.Searcher(utils.get_args())
-retrieval_trad_searcher = retrieval_trad_searcher_lib.Searcher(utils.get_args())
+args = utils.get_args(use_fake=True)
+retrieval_searcher = retrieval_searcher_lib.Searcher(args)
+retrieval_trad_searcher = retrieval_trad_searcher_lib.Searcher(args)
 
 
 def run_prediction(in_path, out_path):

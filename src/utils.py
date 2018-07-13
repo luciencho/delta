@@ -7,6 +7,7 @@ import os
 import time
 import shutil
 import argparse
+import platform
 
 from src.retrieval import model
 
@@ -57,7 +58,7 @@ def write_result(args, loss):
     write_lines(file_path, lines)
 
 
-def get_args():
+def general_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--tmp_dir', type=str,
                         required=True, help='tmp_dir')
@@ -72,6 +73,37 @@ def get_args():
     parser.add_argument('--problems', type=str, nargs='+',
                         required=False, help='problems')
     args = parser.parse_args()
+    return args
+
+
+def generate_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--data_dir', type=str, help='data_dir')
+    parser.add_argument('--tmp_dir', type=str, help='tmp_dir')
+    parser.add_argument('--hparams', type=str, help='hparam_set')
+    args = parser.parse_args()
+    return args
+
+
+def fake_args():
+
+    class FakeArgs(object):
+        if platform.system() == 'Windows':
+            tmp_dir = r'E:\competition\jddc_v2\tmp_belta'
+            model_dir = r'E:\competition\jddc_v2\models'
+        else:
+            tmp_dir = r'\submission\tmp'
+            tmp_dir = r'\submission\models'
+        hparams = 'solo_lstm'
+
+    return FakeArgs()
+
+
+def get_args(use_fake=False):
+    if use_fake:
+        args = fake_args()
+    else:
+        args = general_args()
     if args.hparams == 'solo_lstm':
         original = model.solo_lstm()
     elif args.hparams == 'solo_gru':
@@ -97,12 +129,11 @@ def get_args():
     return args
 
 
-def data_gen_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--data_dir', type=str, help='data_dir')
-    parser.add_argument('--tmp_dir', type=str, help='tmp_dir')
-    parser.add_argument('--hparams', type=str, help='hparam_set')
-    args = parser.parse_args()
+def data_gen_args(use_fake=False):
+    if use_fake:
+        args = fake_args()
+    else:
+        args = generate_args()
     if args.hparams == 'solo_lstm':
         original = model.solo_lstm()
     elif args.hparams == 'solo_gru':

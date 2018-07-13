@@ -9,10 +9,10 @@ from src import utils
 from src.data_utils.vocab import Tokenizer
 
 
-def load_keywords(args):
+def load_keywords(path_keyword):
     idf_freq = {}
-    utils.verbose('loading keywords from {}'.format(args.path['keyword']))
-    with open(args.path['keyword'], 'r', encoding='utf-8') as f:
+    utils.verbose('loading keywords from {}'.format(path_keyword))
+    with open(path_keyword, 'r', encoding='utf-8') as f:
         for line in f:
             word, freq = line.strip().split(' ')
             idf_freq[int(word)] = float(freq)

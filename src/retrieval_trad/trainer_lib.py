@@ -11,7 +11,7 @@ from src.data_utils.vocab import Tokenizer
 
 def process(args):
     tokenizer = Tokenizer(args.path['vocab'])
-    keywords = load_keywords(args)
+    keywords = load_keywords(args.path['keyword'])
     ss_model = SentSimModel(tokenizer, keywords, args.tfidf_vocab_size)
     ss_model.set_data(utils.read_lines(args.path['train_x']))
     ss_model.simple_data()
