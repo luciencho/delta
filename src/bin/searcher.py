@@ -20,8 +20,16 @@ def run_prediction(in_path, out_path):
     with open(in_path, 'r', encoding='utf-8') as f:
         resu = f.read().strip().split('\n')
     ret = []
+    answers = utils.read_lines(args.path['train_y'])
     for i in resu:
-        ret.append(retrieval_searcher.search_line(i, 1)[0])
+        candidates_id_1 = retrieval_searcher.search_line(i, 50)
+        candidates_id_2 = retrieval_trad_searcher.search_line(i, 50)
+        intersects = [i for i in candidates_id_1 if i in candidates_id_2]
+        if intersects:
+            best = answers[intersects[0]]
+        else:
+            best = answers[candidates_id_1[0]]
+        ret.append(best)
     with open(out_path, 'w', encoding='utf-8') as f:
         f.write('\n'.join(ret))
 
