@@ -196,11 +196,6 @@ def solo_gru():
     return hparams
 
 
-def solo_lstm_v1():
-    hparams = solo_lstm()
-    return hparams
-
-
 def solo_lstm_ln():
     hparams = solo_lstm()
     hparams.use_layer_norm = True

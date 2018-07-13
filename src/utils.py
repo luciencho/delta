@@ -72,8 +72,6 @@ def get_args():
     args = parser.parse_args()
     if args.hparams == 'solo_lstm':
         original = model.solo_lstm()
-    elif args.hparams == 'solo_lstm_v1':
-        original = model.solo_lstm_v1()
     elif args.hparams == 'solo_gru':
         original = model.solo_gru()
     elif args.hparams == 'solo_lstm_ln':
@@ -103,8 +101,6 @@ def data_gen_args():
     args = parser.parse_args()
     if args.hparams == 'solo_lstm':
         original = model.solo_lstm()
-    elif args.hparams == 'solo_lstm_v1':
-        original = model.solo_lstm_v1()
     elif args.hparams == 'solo_gru':
         original = model.solo_gru()
     elif args.hparams == 'solo_lstm_ln':
