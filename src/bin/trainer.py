@@ -6,11 +6,13 @@ from __future__ import print_function
 from src import utils
 from src.retrieval import trainer_lib as retrieval_trainer_lib
 from src.retrieval_trad import trainer_lib as retrieval_trad_trainer_lib
+from src.retrieval_trad import keyword_lib
 
 
 trainer_index = {
     'retrieval': retrieval_trainer_lib,
-    'retrieval_trad': retrieval_trad_trainer_lib}
+    'retrieval_trad': retrieval_trad_trainer_lib,
+    'keyword': keyword_lib}
 
 
 if __name__ == '__main__':

@@ -92,7 +92,8 @@ def get_args():
                  'dev_x': os.path.join(args.tmp_dir, 'dev_q.txt'),
                  'dev_y': os.path.join(args.tmp_dir, 'dev_a.txt'),
                  'ann': os.path.join(args.model_dir, args.hparams, 'ann'),
-                 'tfidf': os.path.join(args.model_dir, 'tfidf')}
+                 'tfidf': os.path.join(args.model_dir, 'tfidf'),
+                 'keyword': os.path.join(args.model_dir, 'keywords.txt')}
     return args
 
 

@@ -12,8 +12,9 @@ from src import utils
 
 
 class SentSimModel(object):
-    def __init__(self, tokenizer, vocab_size=2000):
+    def __init__(self, tokenizer, keywords, vocab_size=2000):
         self.tokenizer = tokenizer
+        self.keywords = keywords
         self.vocab_size = vocab_size
         self.lines_1 = None
         self.dictionary = None
@@ -29,7 +30,7 @@ class SentSimModel(object):
         if self.lines_1 is None:
             raise ValueError('set data is a must before this step')
         texts = [[str(s) for s in self.tokenizer.encode_line_trad(line)
-                  if s <= self.vocab_size] for line in self.lines_1]
+                  if s in self.keywords[: self.vocab_size]] for line in self.lines_1]
         self.dictionary = corpora.Dictionary(texts)
         self.corpus_simple = [self.dictionary.doc2bow(text) for text in texts]
 
@@ -51,7 +52,8 @@ class SentSimModel(object):
         self.index = similarities.MatrixSimilarity(self.corpus)
 
     def line2vec(self, line, mode='tfidf'):
-        words = [str(s) for s in self.tokenizer.encode_line_trad(line) if s <= self.vocab_size]
+        words = [str(s) for s in self.tokenizer.encode_line_trad(line)
+                 if s in self.keywords[: self.vocab_size]]
         vec_bow = self.dictionary.doc2bow(words)
         return self.models[mode][vec_bow]
 
