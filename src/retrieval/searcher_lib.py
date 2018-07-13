@@ -24,10 +24,10 @@ class Searcher(object):
         saver = tf.train.Saver()
         saver.restore(self.sess, args.model_path)
 
-    def search_line(self, line, num=5):
+    def search_line(self, line, num=15):
         input_x = self.infer_batch.encode_line(line)
         infer_features = {'input_x_ph': input_x, 'keep_prob_ph': 1.0}
         infer_fetches, infer_feed = self.model.infer_step(infer_features)
         vector = self.sess.run(infer_fetches, infer_feed)[0]
         candidate_ids = self.ann.get_nns_by_vector(vector, num)
-        return [self.answers[i] for i in candidate_ids]
+        return candidate_ids

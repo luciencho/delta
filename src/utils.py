@@ -69,6 +69,8 @@ def get_args():
                         default='0', help='gpu_device')
     parser.add_argument('--gpu_memory', type=float,
                         default=0.23, help='gpu_memory_fraction')
+    parser.add_argument('--problems', type=str, nargs='+',
+                        required=False, help='problems')
     args = parser.parse_args()
     if args.hparams == 'solo_lstm':
         original = model.solo_lstm()
@@ -89,7 +91,8 @@ def get_args():
                  'train_y': os.path.join(args.tmp_dir, 'train_a.txt'),
                  'dev_x': os.path.join(args.tmp_dir, 'dev_q.txt'),
                  'dev_y': os.path.join(args.tmp_dir, 'dev_a.txt'),
-                 'ann': os.path.join(args.model_dir, args.hparams, 'ann')}
+                 'ann': os.path.join(args.model_dir, args.hparams, 'ann'),
+                 'tfidf': os.path.join(args.model_dir, 'tfidf')}
     return args
 
 

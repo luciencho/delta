@@ -7,10 +7,12 @@ import sys
 import os
 
 from src import utils
-from src.retrieval import searcher_lib
+from src.retrieval import searcher_lib as retrieval_searcher_lib
+from src.retrieval_trad import searcher_lib as retrieval_trad_searcher_lib
 
 
-searcher = searcher_lib.Searcher(utils.get_args())
+retrieval_searcher = retrieval_searcher_lib.Searcher(utils.get_args())
+retrieval_trad_searcher = retrieval_trad_searcher_lib.Searcher(utils.get_args())
 
 
 def run_prediction(in_path, out_path):
@@ -18,7 +20,7 @@ def run_prediction(in_path, out_path):
         resu = f.read().strip().split('\n')
     ret = []
     for i in resu:
-        ret.append(searcher.search_line(i, 1)[0])
+        ret.append(retrieval_searcher.search_line(i, 1)[0])
     with open(out_path, 'w', encoding='utf-8') as f:
         f.write('\n'.join(ret))
 

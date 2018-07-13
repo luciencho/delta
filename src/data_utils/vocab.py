@@ -243,7 +243,7 @@ class Tokenizer(object):
             'chars has been dumped in {}'.format(os.path.abspath(files[1])))
 
     def encode_line(self, line):
-        """ Encode one line to list of word-char pairs
+        """ Encode one line to list of word-char id pairs
 
         :param line: string
         :return: list of (word_id, char_id)
@@ -262,3 +262,13 @@ class Tokenizer(object):
                     char_id = self.char_dict.get(char, self.char_dict[UNK])
                     wc_pairs.append((word_id, char_id))
         return wc_pairs
+
+    def encode_line_trad(self, line):
+        words = self.cutter.cut(line)
+        tokens = []
+        for word in words:
+            if word.startswith('{{') and word.endswith('}}'):
+                word = '<' + word.split(':')[0][2:] + '>'
+            word_id = self.word_dict.get(word, self.word_dict[UNK])
+            tokens.append(word_id)
+        return tokens

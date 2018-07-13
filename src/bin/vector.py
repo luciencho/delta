@@ -9,6 +9,6 @@ from src.retrieval import vector_lib
 
 if __name__ == '__main__':
     hparams = utils.get_args()
-    utils.verbose('Start training')
+    utils.verbose('Start building vectors')
     vector_lib.process(hparams)
-    utils.verbose('Finish training')
+    utils.verbose('Finish building vectors')
