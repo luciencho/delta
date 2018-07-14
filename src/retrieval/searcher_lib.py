@@ -22,7 +22,7 @@ class Searcher(object):
         self.sess = tf.Session()
         self.answers = utils.read_lines(args.path['train_y'])
         saver = tf.train.Saver()
-        saver.restore(self.sess, args.model_path)
+        saver.restore(self.sess, args.path['model'])
 
     def search_line(self, line, num=15):
         input_x = self.infer_batch.encode_line(line)
