@@ -23,7 +23,7 @@ def run_prediction(in_path, out_path):
     answers = utils.read_lines(args.path['train_y'])
     for i in resu:
         candidates_id_1 = retrieval_searcher.search_line(i, 50)
-        candidates_id_2 = retrieval_trad_searcher.search_line(i, 50)
+        candidates_id_2 = retrieval_trad_searcher.search_line(i, 'tfidf', 50)
         intersects = [i for i in candidates_id_1 if i in candidates_id_2]
         if intersects:
             best = answers[intersects[0]]
@@ -44,6 +44,6 @@ if __name__ == '__main__':
         print('index error')
         exit(0)
     output_dir = os.path.dirname(output_file_path)
-    if not os.path.exists(output_dir):
+    if not os.path.exists(output_dir) and output_dir:
         os.makedirs(output_dir)
     run_prediction(input_file_path, output_file_path)
