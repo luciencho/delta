@@ -8,6 +8,7 @@ import re
 import jieba_fast as jieba
 
 from src import utils
+from src.data_utils.stop_words import stop_word_list
 
 
 jieba.initialize()
@@ -111,6 +112,7 @@ class SubCutter(object):
     def __init__(self):
         self.collector = None
         self.counter = None
+        self.stopwords = stop_word_list
 
     def _reset(self):
         self.collector = []
@@ -147,7 +149,9 @@ class SubCutter(object):
         new_line = line
         for fn in default_clean_fns:
             new_line = fn(new_line)
-        return self._segment(new_line)
+        tokens = self._segment(new_line)
+        clean_tokens = [t for t in tokens if t not in self.stopwords]
+        return clean_tokens
 
 
 class Tokenizer(object):
@@ -242,7 +246,7 @@ class Tokenizer(object):
         utils.verbose(
             'chars has been dumped in {}'.format(os.path.abspath(files[1])))
 
-    def encode_line(self, line):
+    def encode_line_into_pairs(self, line):
         """ Encode one line to list of word-char id pairs
 
         :param line: string
@@ -263,7 +267,12 @@ class Tokenizer(object):
                     wc_pairs.append((word_id, char_id))
         return wc_pairs
 
-    def encode_line_trad(self, line):
+    def encode_line_into_words(self, line):
+        """ Encode one line to list of word ids
+
+        :param line: string
+        :return: list of word_ids
+        """
         words = self.cutter.cut(line)
         tokens = []
         for word in words:

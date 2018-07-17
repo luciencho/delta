@@ -25,7 +25,7 @@ class SoloBatch(object):
         random.shuffle(self.pairs)
 
     def _encode_line(self, line, max_len):
-        wc_pairs = self.tokenizer.encode_line(line)[: max_len]
+        wc_pairs = self.tokenizer.encode_line_into_pairs(line)[: max_len]
         wc_pairs += [(self.tokenizer.PAD_ID,
                       self.tokenizer.PAD_ID)] * (max_len - len(wc_pairs))
         return wc_pairs

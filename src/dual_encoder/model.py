@@ -5,7 +5,7 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-from src.retrieval import common_layers
+from src.dual_encoder import common_layers
 
 
 class RetrievalModel(object):
@@ -136,7 +136,7 @@ class DualEncoderModel(RetrievalModel):
             interact_hidden = features['enc_x'].shape[-1]
             transformed_enc_x = features['enc_x']
             transformed_enc_y = common_layers.linear(
-                features['enc_y'], interact_hidden, True)
+                features['enc_y'], interact_hidden, False)
             if self.hparam.use_layer_norm:
                 transformed_enc_y = common_layers.layer_norm(transformed_enc_y)
             features['logits'] = tf.matmul(

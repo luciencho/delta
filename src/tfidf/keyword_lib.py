@@ -22,9 +22,9 @@ def load_keywords(path_keyword):
 
 def process(args):
     tokenizer = Tokenizer(args.path['vocab'])
-    train_x_enc = [tokenizer.encode_line_trad(i) for i in utils.read_lines(
+    train_x_enc = [tokenizer.encode_line_into_words(i) for i in utils.read_lines(
         args.path['train_x'])]
-    train_y_enc = [tokenizer.encode_line_trad(i) for i in utils.read_lines(
+    train_y_enc = [tokenizer.encode_line_into_words(i) for i in utils.read_lines(
         args.path['train_y'])]
     trainset = train_x_enc + train_y_enc
     vocab_counter = {}

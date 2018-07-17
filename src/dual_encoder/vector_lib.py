@@ -10,7 +10,7 @@ import time
 from annoy import AnnoyIndex
 
 from src import utils
-from src.retrieval.model import DualEncoderModel
+from src.dual_encoder.model import DualEncoderModel
 from src.data_utils.vocab import Tokenizer
 from src.data_utils.data import SoloBatch
 

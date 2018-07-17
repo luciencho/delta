@@ -29,7 +29,7 @@ class SentSimModel(object):
     def simple_data(self):
         if self.lines_1 is None:
             raise ValueError('set data is a must before this step')
-        texts = [[str(s) for s in self.tokenizer.encode_line_trad(line)
+        texts = [[str(s) for s in self.tokenizer.encode_line_into_words(line)
                   if s in self.keywords[: self.vocab_size]] for line in self.lines_1]
         self.dictionary = corpora.Dictionary(texts)
         self.corpus_simple = [self.dictionary.doc2bow(text) for text in texts]
@@ -52,7 +52,7 @@ class SentSimModel(object):
         self.index = similarities.MatrixSimilarity(self.corpus)
 
     def line2vec(self, line, mode='tfidf'):
-        words = [str(s) for s in self.tokenizer.encode_line_trad(line)
+        words = [str(s) for s in self.tokenizer.encode_line_into_words(line)
                  if s in self.keywords[: self.vocab_size]]
         vec_bow = self.dictionary.doc2bow(words)
         return self.models[mode][vec_bow]

@@ -7,8 +7,8 @@ import sys
 import os
 
 from src import utils
-from src.retrieval import searcher_lib as retrieval_searcher_lib
-from src.retrieval_trad import searcher_lib as retrieval_trad_searcher_lib
+from src.dual_encoder import searcher_lib as retrieval_searcher_lib
+from src.tfidf import searcher_lib as retrieval_trad_searcher_lib
 
 
 args = utils.get_args(use_fake=True)

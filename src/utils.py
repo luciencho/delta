@@ -9,7 +9,7 @@ import shutil
 import argparse
 import platform
 
-from src.retrieval import model
+from src.dual_encoder import model
 
 
 def verbose(line):

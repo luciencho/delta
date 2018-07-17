@@ -4,8 +4,8 @@ from __future__ import division
 from __future__ import print_function
 
 from src import utils
-from src.retrieval_trad.keyword_lib import load_keywords
-from src.retrieval_trad.model import SentSimModel
+from src.tfidf.keyword_lib import load_keywords
+from src.tfidf.model import SentSimModel
 from src.data_utils.vocab import Tokenizer
 
 

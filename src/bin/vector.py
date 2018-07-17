@@ -4,7 +4,7 @@ from __future__ import division
 from __future__ import print_function
 
 from src import utils
-from src.retrieval import vector_lib
+from src.dual_encoder import vector_lib
 
 
 if __name__ == '__main__':
