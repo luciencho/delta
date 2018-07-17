@@ -92,8 +92,8 @@ def fake_args():
             tmp_dir = r'E:\competition\jddc_v2\tmp_belta'
             model_dir = r'E:\competition\jddc_v2\models'
         else:
-            tmp_dir = r'\submission\tmp'
-            tmp_dir = r'\submission\models'
+            tmp_dir = r'/submission/tmp'
+            model_dir = r'/submission/models'
         hparams = 'solo_lstm'
 
     return FakeArgs()

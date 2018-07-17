@@ -17,17 +17,17 @@ class Searcher(object):
         tokenizer = Tokenizer(args.path['vocab'])
         self.infer_batch = SoloBatch(tokenizer, [args.x_max_len, args.y_max_len])
         self.model = DualEncoderModel(args)
-        self.ann = AnnoyIndex(args.emb_dim * 2)
+        self.ann = AnnoyIndex(args.hidden)
         self.ann.load(args.path['ann'])
         self.sess = tf.Session()
         self.answers = utils.read_lines(args.path['train_y'])
         saver = tf.train.Saver()
-        saver.restore(self.sess, args.model_path)
+        saver.restore(self.sess, args.path['model'])
 
     def search_line(self, line, num=15):
         input_x = self.infer_batch.encode_line(line)
-        infer_features = {'input_x_ph': input_x, 'keep_prob_ph': 1.0}
+        infer_features = {'input_x_ph': [input_x], 'keep_prob_ph': 1.0}
         infer_fetches, infer_feed = self.model.infer_step(infer_features)
-        vector = self.sess.run(infer_fetches, infer_feed)[0]
+        vector = self.sess.run(infer_fetches, infer_feed)[0][0]
         candidate_ids = self.ann.get_nns_by_vector(vector, num)
         return candidate_ids

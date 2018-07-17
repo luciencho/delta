@@ -21,6 +21,7 @@ def load_keywords(path_keyword):
 
 
 def process(args):
+    utils.make_directory(args.path['model'])
     tokenizer = Tokenizer(args.path['vocab'])
     train_x_enc = [tokenizer.encode_line_into_words(i) for i in utils.read_lines(
         args.path['train_x'])]
