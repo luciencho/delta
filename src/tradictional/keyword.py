@@ -20,18 +20,10 @@ def load_keywords(path_keyword):
     return keywords
 
 
-def process(args):
-    utils.make_directory(args.path['model'])
-    tokenizer = Tokenizer(args.path['vocab'])
-    train_x_enc = [tokenizer.encode_line_into_words(i) for i in utils.read_lines(
-        args.path['train_x'])]
-    train_y_enc = [tokenizer.encode_line_into_words(i) for i in utils.read_lines(
-        args.path['train_y'])]
-    trainset = train_x_enc + train_y_enc
+def train_keywords(data, path):
     vocab_counter = {}
-
     i = 0
-    for line in trainset:
+    for line in data:
         for word in line:
             if word in vocab_counter:
                 vocab_counter[word] += 1
@@ -40,7 +32,7 @@ def process(args):
         if not i % 10000 and i:
             utils.verbose('processing {} lines'.format(i))
         i += 1
-    with open(args.path['keyword'], 'w', encoding='utf-8') as f:
+    with open(path, 'w', encoding='utf-8') as f:
         for key, value in vocab_counter.items():
             f.write(str(key) + ' ' + str(math.log(i / value, 2)) + '\n')
-    utils.verbose('keywords are saved in {}'.format(args.path['keyword']))
+    utils.verbose('keywords are saved in {}'.format(path))
