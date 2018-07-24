@@ -67,14 +67,15 @@ class SentSimModel(object):
     def _get(self, toks, mode):
         vec_bow = self.dictionary[mode].doc2bow(toks)
         if mode == 'lda':
-            vec = [i[1] for i in self.models['lda'].get_document_topics(vec_bow)]
+            vec = [0] * self.num_topics
+            resu = self.models['lda'].get_document_topics(vec_bow)
         elif mode == 'tfidf':
             vec = [0] * self.num_keywords
             resu = self.models['tfidf'][vec_bow]
-            for x, y in resu:
-                vec[x] = y
         else:
             raise ValueError('invalid mode: {}'.format(mode))
+        for x, y in resu:
+            vec[x] = y
         return vec
 
     def _load(self, mode):
