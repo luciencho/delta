@@ -4,8 +4,8 @@ from __future__ import division
 from __future__ import print_function
 
 from src.data_utils.vocab import Tokenizer
-from src.tradictional.keyword import load_keywords
-from src.tradictional.model import SentSimModel
+from src.traditional.keyword import load_keywords
+from src.traditional.model import SentSimModel
 
 
 class Searcher(object):

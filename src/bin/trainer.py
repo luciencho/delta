@@ -5,7 +5,7 @@ from __future__ import print_function
 
 from src import utils
 from src.dual_encoder import trainer_lib as dual_encoder_trainer
-from src.tradictional import trainer_lib as traditional_trainer
+from src.traditional import trainer_lib as traditional_trainer
 
 trainer_index = {
     'dual_encoder': dual_encoder_trainer,

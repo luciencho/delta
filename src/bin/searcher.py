@@ -8,7 +8,7 @@ from __future__ import print_function
 
 from src import utils
 from src.dual_encoder.searcher_lib import Searcher as DualEncoderSearcher
-from src.tradictional.searcher_lib import Searcher as TraditionalSearcher
+from src.traditional.searcher_lib import Searcher as TraditionalSearcher
 
 
 class Inspector(object):

@@ -4,9 +4,9 @@ from __future__ import division
 from __future__ import print_function
 
 from src import utils
-from src.tradictional.keyword import train_keywords
-from src.tradictional.keyword import load_keywords
-from src.tradictional.model import SentSimModel
+from src.traditional.keyword import train_keywords
+from src.traditional.keyword import load_keywords
+from src.traditional.model import SentSimModel
 from src.data_utils.vocab import Tokenizer
 
 
