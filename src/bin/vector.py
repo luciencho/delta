@@ -8,7 +8,7 @@ from src.dual_encoder import vector_lib
 
 
 if __name__ == '__main__':
-    hparams = utils.get_args()
+    hparams = utils.major_args()
     utils.verbose('Start building vectors')
     vector_lib.process(hparams)
     utils.verbose('Finish building vectors')

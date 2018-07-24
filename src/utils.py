@@ -59,7 +59,7 @@ def write_result(args, loss):
     write_lines(file_path, lines)
 
 
-def general_args():
+def _major_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--tmp_dir', type=str, required=True, help='tmp_dir')
     parser.add_argument('--model_dir', type=str, required=True, help='model_dir')
@@ -71,7 +71,7 @@ def general_args():
     return args
 
 
-def generate_args():
+def _minor_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--data_dir', type=str, help='data_dir')
     parser.add_argument('--tmp_dir', type=str, help='tmp_dir')
@@ -80,7 +80,7 @@ def generate_args():
     return args
 
 
-def fake_args():
+def _fake_args():
 
     class FakeArgs(object):
         if platform.system() == 'Windows':
@@ -94,7 +94,7 @@ def fake_args():
     return FakeArgs()
 
 
-def _args(args):
+def _reconstruct_args(args):
     hp_mode, hparams = args.hparams.split('_')
 
     if hparams == 'lstm':
@@ -122,8 +122,13 @@ def _args(args):
     return args
 
 
-def get_args(use_fake=False):
-    args = _args(fake_args() if use_fake else general_args())
+def major_args(use_fake=False):
+    """ args for trainer and searcher
+
+    :param use_fake: bool
+    :return: args
+    """
+    args = _reconstruct_args(_fake_args() if use_fake else _major_args())
     args.path = {'model': os.path.join(args.model_dir, args.hparams, 'model'),
                  'vocab': [os.path.join(args.tmp_dir, '{}.vcb'.format(i)) for i in [
                      args.word_size, args.char_size]],
@@ -136,6 +141,11 @@ def get_args(use_fake=False):
     return args
 
 
-def data_gen_args(use_fake=False):
-    args = _args(fake_args() if use_fake else generate_args())
+def minor_args(use_fake=False):
+    """ args for data generation & vocab generation
+
+    :param use_fake: bool
+    :return: args
+    """
+    args = _reconstruct_args(_fake_args() if use_fake else _minor_args())
     return args

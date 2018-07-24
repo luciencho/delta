@@ -9,7 +9,7 @@ from src.data_utils import vocab_generator
 
 
 if __name__ == '__main__':
-    hparams = utils.data_gen_args()
+    hparams = utils.minor_args()
     utils.verbose('Start generating data')
     data_generator.process(hparams)
     utils.verbose('Finish generating data')

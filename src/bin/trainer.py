@@ -14,7 +14,7 @@ trainer_index = {
 
 
 if __name__ == '__main__':
-    hparams = utils.get_args()
+    hparams = utils.major_args()
     if hparams.problem is None:
         raise ValueError('At least one problem must be announced')
     elif hparams.problem not in trainer_index:
