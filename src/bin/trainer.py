@@ -4,14 +4,13 @@ from __future__ import division
 from __future__ import print_function
 
 from src import utils
-from src.dual_encoder import trainer_lib as retrieval_trainer_lib
-from src.tfidf import trainer_lib as retrieval_trad_trainer_lib
-from src.tradictional import keyword
+from src.dual_encoder import trainer_lib as dual_encoder_trainer
+from src.tradictional import trainer_lib as traditional_trainer
 
 trainer_index = {
-    'dual_encoder': retrieval_trainer_lib,
-    'tfidf': retrieval_trad_trainer_lib,
-    'keyword': keyword}
+    'dual_encoder': dual_encoder_trainer,
+    'tfidf': traditional_trainer,
+    'lda': traditional_trainer}
 
 
 if __name__ == '__main__':
