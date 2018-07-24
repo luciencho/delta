@@ -171,6 +171,7 @@ class DualEncoderModel(RetrievalModel):
 def solo_lstm():  # 3.114 30.39%
     hparams = tf.contrib.training.HParams(
         num_keywords=10000,
+        num_trees=10,
         word_size=50000,
         char_size=5000,
         emb_dim=256,
