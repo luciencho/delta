@@ -61,18 +61,12 @@ def write_result(args, loss):
 
 def general_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--tmp_dir', type=str,
-                        required=True, help='tmp_dir')
-    parser.add_argument('--model_dir', type=str,
-                        required=True, help='model_dir')
-    parser.add_argument('--hparams', type=str,
-                        required=True, help='hparam_set')
-    parser.add_argument('--gpu_device', type=str,
-                        default='0', help='gpu_device')
-    parser.add_argument('--gpu_memory', type=float,
-                        default=0.23, help='gpu_memory_fraction')
-    parser.add_argument('--problem', type=str,
-                        required=False, help='problem')
+    parser.add_argument('--tmp_dir', type=str, required=True, help='tmp_dir')
+    parser.add_argument('--model_dir', type=str, required=True, help='model_dir')
+    parser.add_argument('--hparams', type=str, required=True, help='hparam_set')
+    parser.add_argument('--gpu_device', type=str, default='0', help='gpu_device')
+    parser.add_argument('--gpu_memory', type=float, default=0.23, help='gpu_memory_fraction')
+    parser.add_argument('--problem', type=str, required=False, help='problem')
     args = parser.parse_args()
     return args
 
@@ -100,26 +94,7 @@ def fake_args():
     return FakeArgs()
 
 
-def get_args(use_fake=False):
-    args = data_gen_args(use_fake)
-    args.path = {'model': os.path.join(args.model_dir, args.hparams, 'model'),
-                 'vocab': [os.path.join(args.tmp_dir, '{}.vcb'.format(i)) for i in [
-                     args.word_size, args.char_size]],
-                 'train_x': os.path.join(args.tmp_dir, 'train_q.txt'),
-                 'train_y': os.path.join(args.tmp_dir, 'train_a.txt'),
-                 'dev_x': os.path.join(args.tmp_dir, 'dev_q.txt'),
-                 'dev_y': os.path.join(args.tmp_dir, 'dev_a.txt'),
-                 'ann': os.path.join(args.model_dir, args.hparams, 'dual_encoder.ann'),
-                 'model_dir': os.path.join(args.model_dir, args.hparams)}
-    return args
-
-
-def data_gen_args(use_fake=False):
-    if use_fake:
-        args = fake_args()
-    else:
-        args = generate_args()
-
+def _args(args):
     hp_mode, hparams = args.hparams.split('_')
 
     if hparams == 'lstm':
@@ -144,4 +119,23 @@ def data_gen_args(use_fake=False):
         if not k.startswith('_'):
             verbose('add attribute {} [{}] to hparams'.format(k, v))
             setattr(args, k, v)
+    return args
+
+
+def get_args(use_fake=False):
+    args = _args(fake_args() if use_fake else general_args())
+    args.path = {'model': os.path.join(args.model_dir, args.hparams, 'model'),
+                 'vocab': [os.path.join(args.tmp_dir, '{}.vcb'.format(i)) for i in [
+                     args.word_size, args.char_size]],
+                 'train_x': os.path.join(args.tmp_dir, 'train_q.txt'),
+                 'train_y': os.path.join(args.tmp_dir, 'train_a.txt'),
+                 'dev_x': os.path.join(args.tmp_dir, 'dev_q.txt'),
+                 'dev_y': os.path.join(args.tmp_dir, 'dev_a.txt'),
+                 'ann': os.path.join(args.model_dir, args.hparams, 'dual_encoder.ann'),
+                 'model_dir': os.path.join(args.model_dir, args.hparams)}
+    return args
+
+
+def data_gen_args(use_fake=False):
+    args = _args(fake_args() if use_fake else generate_args())
     return args
