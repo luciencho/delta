@@ -69,9 +69,9 @@ class RetrievalModel(object):
         return self._steps(features, ['enc_x'])
 
 
-class DualEncoderModel(RetrievalModel):
+class SoloModel(RetrievalModel):
     def __init__(self, hparam):
-        super(DualEncoderModel, self).__init__(hparam)
+        super(SoloModel, self).__init__(hparam)
         self.features = self.bottom(self.features)
         self.features = self.embed_layer(self.features)
         self.features = self.encode_layer(self.features)
@@ -88,7 +88,7 @@ class DualEncoderModel(RetrievalModel):
             features['global_step'] = tf.Variable(0, trainable=False)
             features['x_lens'] = common_layers.length_last_axis(features['input_x'])
             features['y_lens'] = common_layers.length_last_axis(features['input_y'])
-            features['labels'] = common_layers.get_labels(features['x_lens'])
+            features['labels'] = common_layers.get_labels(features['y_lens'])
         return features
 
     def embed_layer(self, features):
@@ -168,7 +168,110 @@ class DualEncoderModel(RetrievalModel):
         return features
 
 
-def solo_lstm():  # 3.114 30.39%
+class PentaModel(RetrievalModel):
+    def __init__(self, hparam):
+        super(PentaModel, self).__init__(hparam)
+        self.features = self.bottom(self.features)
+        self.features = self.embed_layer(self.features)
+        self.features = self.encode_layer(self.features)
+        self.features = self.interact_layer(self.features)
+        self.features = self.top(self.features)
+
+    def bottom(self, features):
+        with tf.variable_scope('placeholders'):
+            features['keep_prob'] = tf.placeholder(tf.float32, None, 'keep_prob')
+            for i in range(1, 6):
+                features['input_x_{}'.format(i)] = tf.placeholder(
+                    tf.int32, [None] * 3, 'input_x_{}'.format(i))
+            features['input_y'] = tf.placeholder(tf.int32, [None, None, None], 'input_y')
+
+        with tf.variable_scope('variables'):
+            features['global_step'] = tf.Variable(0, trainable=False)
+            for i in range(1, 6):
+                features['x_{}_lens'.format(i)] = common_layers.length_last_axis(
+                    features['input_x_{}'.format(i)])
+            features['y_lens'] = common_layers.length_last_axis(features['input_y'])
+            features['labels'] = common_layers.get_labels(features['y_lens'])
+        return features
+
+    def embed_layer(self, features):
+        with tf.variable_scope('embed_layer'):
+            with tf.device('/cpu:0'):
+                features['word_vars'] = tf.get_variable(
+                    'word_vars', [self.hparam.word_size, self.hparam.emb_dim],
+                    initializer=tf.contrib.layers.xavier_initializer())
+                features['char_vars'] = tf.get_variable(
+                    'char_vars', [self.hparam.char_size, self.hparam.emb_dim],
+                    initializer=tf.contrib.layers.xavier_initializer())
+            for i in range(1, 6):
+                features['emb_x_{}'.format(i)] = common_layers.get_embedding(
+                    features['word_vars'], features['char_vars'],
+                    features['input_x_{}'.format(i)], features['keep_prob'])
+            features['emb_y'] = common_layers.get_embedding(
+                features['word_vars'], features['char_vars'],
+                features['input_y'], features['keep_prob'])
+        return features
+
+    def encode_layer(self, features):
+        with tf.variable_scope('encode_layer'):
+            with tf.variable_scope('encode_each'):
+                _, features['enc_y'] = common_layers.bidirectional_rnn(
+                    features['emb_y'], features['y_lens'],
+                    self.hparam.hidden, self.hparam.num_layers,
+                    self.hparam.rnn_type, features['keep_prob'])
+                tf.get_variable_scope().reuse_variables()
+                enc_x = []
+                for i in range(1, 6):
+                    _, features['enc_x_{}'.format(i)] = common_layers.bidirectional_rnn(
+                        features['emb_x_{}'.format(i)], features['x_{}_lens'.format(i)],
+                        self.hparam.hidden, self.hparam.num_layers,
+                        self.hparam.rnn_type, features['keep_prob'])
+                    enc_x.append(tf.expand_dims(features['enc_x_{}'.format(i)], axis=0))
+                enc_x = tf.concat(enc_x, axis=0)
+            with tf.variable_scope('encode_all'):
+                _, features['enc_x'] = common_layers.bidirectional_rnn(
+                    enc_x, common_layers.length_last_axis(enc_x), self.hparam.hidden,
+                    self.hparam.num_layers, self.hparam.rnn_type, features['keep_prob'])
+        return features
+
+    def interact_layer(self, features):
+        with tf.variable_scope('interact_layer'):
+            interact_hidden = features['enc_x'].shape[-1]
+            transformed_enc_x = features['enc_x']
+            transformed_enc_y = common_layers.linear(
+                features['enc_y'], interact_hidden, False)
+            if self.hparam.use_layer_norm:
+                transformed_enc_y = common_layers.layer_norm(transformed_enc_y)
+            features['logits'] = tf.matmul(
+                transformed_enc_y, transformed_enc_x, transpose_b=True)
+        return features
+
+    def top(self, features):
+        with tf.variable_scope('top'):
+            features['losses'] = tf.losses.softmax_cross_entropy(
+                features['labels'], features['logits'])
+            features['acc'] = tf.contrib.metrics.accuracy(
+                predictions=tf.argmax(features['logits'], axis=-1),
+                labels=tf.argmax(features['labels'], axis=-1))
+            features['loss'] = tf.reduce_mean(features['losses'], name='show_loss')
+            trainable_vars = tf.trainable_variables()
+            features['extra_loss'] = tf.reduce_mean(
+                self.hparam.l2_weight * tf.add_n(
+                    [tf.nn.l2_loss(v) for v in trainable_vars if 'bias' not in v.name]),
+                name='mean_loss')
+
+            features['learning_rate'] = tf.train.exponential_decay(
+                self.hparam.learning_rate, features['global_step'],
+                100, self.hparam.decay_rate)
+            opt = tf.contrib.opt.LazyAdamOptimizer(learning_rate=features['learning_rate'])
+            grads_vars = opt.compute_gradients(features['loss'] + features['extra_loss'])
+            capped_grads_vars = [[
+                tf.clip_by_value(g, -1, 1), v] for g, v in grads_vars if g is not None]
+            features['train_op'] = opt.apply_gradients(capped_grads_vars, features['global_step'])
+        return features
+
+
+def lstm():  # 3.114 30.39%
     hparams = tf.contrib.training.HParams(
         num_keywords=10000,
         num_trees=10,
@@ -193,13 +296,13 @@ def solo_lstm():  # 3.114 30.39%
     return hparams
 
 
-def solo_gru():
-    hparams = solo_lstm()
+def gru():
+    hparams = lstm()
     hparams.rnn_type = 'gru'
     return hparams
 
 
-def solo_lstm_ln():
-    hparams = solo_lstm()
+def lstm_ln():
+    hparams = lstm()
     hparams.use_layer_norm = True
     return hparams

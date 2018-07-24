@@ -21,8 +21,8 @@ def process(args):
 
     if args.problem == 'tfidf':
         trainset = [tokenizer.encode_line_into_words(i) for i in dataset]
-        train_keywords(trainset, args.path['keyword'])
-        keywords = load_keywords(args.path['keyword'])
+        train_keywords(trainset, args.path['model'])
+        keywords = load_keywords(args.path['model'])
         list_of_toks = []
         for n, line in enumerate(dataset):
             if not n % 10000 and n:

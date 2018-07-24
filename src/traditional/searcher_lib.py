@@ -11,7 +11,7 @@ from src.traditional.model import SentSimModel
 class Searcher(object):
     def __init__(self, args):
         self.tokenizer = Tokenizer(args.path['vocab'])
-        self.keywords = load_keywords(args.path['keyword'])
+        self.keywords = load_keywords(args.path['model'])
         self.num_keywords = args.num_keywords
         self.num_trees = args.num_trees
         self.num_topics = args.num_topics

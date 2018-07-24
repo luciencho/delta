@@ -10,6 +10,7 @@ import argparse
 import platform
 
 from src.dual_encoder import model
+from src.data_utils import data
 
 
 def verbose(line):
@@ -100,22 +101,7 @@ def fake_args():
 
 
 def get_args(use_fake=False):
-    if use_fake:
-        args = fake_args()
-    else:
-        args = general_args()
-    if args.hparams == 'solo_lstm':
-        original = model.solo_lstm()
-    elif args.hparams == 'solo_gru':
-        original = model.solo_gru()
-    elif args.hparams == 'solo_lstm_ln':
-        original = model.solo_lstm_ln()
-    else:
-        raise ValueError('Unknown hparams: {}'.format(args.hparams))
-    for k, v in original.__dict__.items():
-        if not k.startswith('_'):
-            verbose('add attribute {} [{}] to hparams'.format(k, v))
-            setattr(args, k, v)
+    args = data_gen_args(use_fake)
     args.path = {'model': os.path.join(args.model_dir, args.hparams, 'model'),
                  'vocab': [os.path.join(args.tmp_dir, '{}.vcb'.format(i)) for i in [
                      args.word_size, args.char_size]],
@@ -123,7 +109,7 @@ def get_args(use_fake=False):
                  'train_y': os.path.join(args.tmp_dir, 'train_a.txt'),
                  'dev_x': os.path.join(args.tmp_dir, 'dev_q.txt'),
                  'dev_y': os.path.join(args.tmp_dir, 'dev_a.txt'),
-                 'ann': os.path.join(args.model_dir, args.hparams, 'ann'),
+                 'ann': os.path.join(args.model_dir, args.hparams, 'dual_encoder.ann'),
                  'model_dir': os.path.join(args.model_dir, args.hparams)}
     return args
 
@@ -133,14 +119,27 @@ def data_gen_args(use_fake=False):
         args = fake_args()
     else:
         args = generate_args()
-    if args.hparams == 'solo_lstm':
-        original = model.solo_lstm()
-    elif args.hparams == 'solo_gru':
-        original = model.solo_gru()
-    elif args.hparams == 'solo_lstm_ln':
-        original = model.solo_lstm_ln()
+
+    hp_mode, hparams = args.hparams.split('_')
+
+    if hparams == 'lstm':
+        original = model.lstm()
+    elif hparams == 'gru':
+        original = model.gru()
+    elif hparams == 'lstmln':
+        original = model.lstm_ln()
     else:
-        raise ValueError('Unknown hparams: {}'.format(args.hparams))
+        raise ValueError('Unknown hparams: {}'.format(hparams))
+
+    if hp_mode == 'solo':
+        args.batch = data.SoloBatch
+        args.model = model.SoloModel
+    elif hp_mode == 'penta':
+        args.batch = data.PentaBatch
+        args.model = model.PentaModel
+    else:
+        raise ValueError('Unknown hp_mode: {}'.format(hp_mode))
+
     for k, v in original.__dict__.items():
         if not k.startswith('_'):
             verbose('add attribute {} [{}] to hparams'.format(k, v))

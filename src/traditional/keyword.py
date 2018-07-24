@@ -3,16 +3,17 @@ from __future__ import unicode_literals
 from __future__ import division
 from __future__ import print_function
 
+import os
 import math
 
 from src import utils
-from src.data_utils.vocab import Tokenizer
 
 
-def load_keywords(path_keyword):
+def load_keywords(model_dir):
+    path = os.path.join(model_dir, 'keywords.txt')
     idf_freq = {}
-    utils.verbose('loading keywords from {}'.format(path_keyword))
-    with open(path_keyword, 'r', encoding='utf-8') as f:
+    utils.verbose('loading keywords from {}'.format(path))
+    with open(path, 'r', encoding='utf-8') as f:
         for line in f:
             word, freq = line.strip().split(' ')
             idf_freq[int(word)] = float(freq)
@@ -20,7 +21,8 @@ def load_keywords(path_keyword):
     return keywords
 
 
-def train_keywords(data, path):
+def train_keywords(data, model_dir):
+    path = os.path.join(model_dir, 'keywords.txt')
     vocab_counter = {}
     i = 0
     for line in data:

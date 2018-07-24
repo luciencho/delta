@@ -10,7 +10,7 @@ import time
 from annoy import AnnoyIndex
 
 from src import utils
-from src.dual_encoder.model import DualEncoderModel
+from src.dual_encoder.model import SoloModel
 from src.data_utils.vocab import Tokenizer
 from src.data_utils.data import SoloBatch
 
@@ -21,7 +21,7 @@ def build_ann(args):
     infer_batch = SoloBatch(tokenizer, [args.x_max_len, args.y_max_len])
     infer_batch.set_data(utils.read_lines(args.path['train_x']),
                          utils.read_lines(args.path['train_y']))
-    model = DualEncoderModel(args)
+    model = SoloModel(args)
 
     os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu_device
     config = tf.ConfigProto()

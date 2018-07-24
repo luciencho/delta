@@ -8,8 +8,8 @@ import tensorflow as tf
 import time
 
 from src import utils
-from src.dual_encoder.model import DualEncoderModel
-from src.data_utils.data import SoloBatch
+from src.dual_encoder.model import SoloModel, PentaModel
+from src.data_utils.data import SoloBatch, PentaBatch
 from src.data_utils.vocab import Tokenizer
 
 
@@ -52,7 +52,7 @@ def process(args):
     dev_batch = SoloBatch(tokenizer, [args.x_max_len, args.y_max_len])
     dev_batch.set_data(utils.read_lines(args.path['dev_x']),
                        utils.read_lines(args.path['dev_y']))
-    model = DualEncoderModel(args)
+    model = SoloModel(args)
 
     os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu_device
     config = tf.ConfigProto()
