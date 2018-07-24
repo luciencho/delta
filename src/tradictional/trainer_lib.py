@@ -23,12 +23,19 @@ def process(args):
         trainset = [tokenizer.encode_line_into_words(i) for i in dataset]
         train_keywords(trainset, args.path['keyword'])
         keywords = load_keywords(args.path['keyword'])
-        list_of_toks = [[str(s) for s in tokenizer.encode_line_into_words(line)
-                         if s in keywords[: args.num_keywords]] for line in dataset]
+        list_of_toks = []
+        for n, line in enumerate(dataset):
+            if not n % 10000 and n:
+                utils.verbose('Tokenizing {} lines for {}'.format(n, args.problem))
+            list_of_toks.append([str(s) for s in tokenizer.encode_line_into_words(line)
+                                 if s in keywords[: args.num_keywords]])
         model.fit_tfidf(list_of_toks)
     elif args.problem == 'lda':
-        list_of_toks = [[str(s) for s in tokenizer.encode_line_into_words(line)]
-                        for line in dataset]
+        list_of_toks = []
+        for n, line in enumerate(dataset):
+            if not n % 10000 and n:
+                utils.verbose('Tokenizing {} lines for {}'.format(n, args.problem))
+            list_of_toks.append([str(s) for s in tokenizer.encode_line_into_words(line)])
         model.fit_lda(list_of_toks)
     else:
         raise ValueError('Invalid problem: {}'.format(args.problem))
