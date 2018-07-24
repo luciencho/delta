@@ -43,10 +43,10 @@ class Recorder(object):
 def process(args):
     utils.make_directory(args.path['model'])
     tokenizer = args.tokenizer(args.path['vocab'])
-    train_batch = args.batch(tokenizer, [args.x_max_len, args.y_max_len])
+    train_batch = args.batch(tokenizer, args.max_lens)
     train_batch.set_data(
         utils.read_lines(args.path['train_x']), utils.read_lines(args.path['train_y']))
-    dev_batch = args.batch(tokenizer, [args.x_max_len, args.y_max_len])
+    dev_batch = args.batch(tokenizer, args.max_lens)
     dev_batch.set_data(
         utils.read_lines(args.path['dev_x']), utils.read_lines(args.path['dev_y']))
     model = args.model(args)

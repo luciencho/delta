@@ -15,7 +15,7 @@ from src import utils
 def build_ann(args):
     vectors = []
     tokenizer = args.tokenizer(args.path['vocab'])
-    infer_batch = args.batch(tokenizer, [args.x_max_len, args.y_max_len])
+    infer_batch = args.batch(tokenizer, args.args.max_lens)
     infer_batch.set_data(utils.read_lines(args.path['train_x']),
                          utils.read_lines(args.path['train_y']))
     model = args.model(args)

@@ -111,9 +111,11 @@ def _reconstruct_args(args):
     if hp_mode == 'solo':
         args.batch = data.SoloBatch
         args.model = model.SoloModel
+        args.max_lens = [args.x_max_len, args.y_max_len]
     elif hp_mode == 'penta':
         args.batch = data.PentaBatch
         args.model = model.PentaModel
+        args.max_lens = [args.y_max_len, args.y_max_len]
     else:
         raise ValueError('Unknown hp_mode: {}'.format(hp_mode))
 
@@ -138,8 +140,7 @@ def major_args(use_fake=False):
                  'train_y': os.path.join(args.tmp_dir, 'train_a.txt'),
                  'dev_x': os.path.join(args.tmp_dir, 'dev_q.txt'),
                  'dev_y': os.path.join(args.tmp_dir, 'dev_a.txt'),
-                 'ann': os.path.join(args.model_dir, args.hparams, 'dual_encoder.ann'),
-                 'model_dir': os.path.join(args.model_dir, args.hparams)}
+                 'ann': os.path.join(args.model_dir, args.hparams, 'dual_encoder.ann')}
     return args
 
 

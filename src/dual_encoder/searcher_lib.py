@@ -12,7 +12,7 @@ from src import utils
 class Searcher(object):
     def __init__(self, args):
         tokenizer = args.tokenizer(args.path['vocab'])
-        self.infer_batch = args.batch(tokenizer, [args.x_max_len, args.y_max_len])
+        self.infer_batch = args.batch(tokenizer, args.args.max_lens)
         self.model = args.model(args)
         self.ann = AnnoyIndex(args.hidden)
         self.ann.load(args.path['ann'])
