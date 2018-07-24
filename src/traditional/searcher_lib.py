@@ -3,14 +3,13 @@ from __future__ import unicode_literals
 from __future__ import division
 from __future__ import print_function
 
-from src.data_utils.vocab import Tokenizer
 from src.traditional.keyword import load_keywords
 from src.traditional.model import SentSimModel
 
 
 class Searcher(object):
     def __init__(self, args):
-        self.tokenizer = Tokenizer(args.path['vocab'])
+        self.tokenizer = args.tokenizer(args.path['vocab'])
         self.keywords = load_keywords(args.path['model'])
         self.num_keywords = args.num_keywords
         self.num_trees = args.num_trees

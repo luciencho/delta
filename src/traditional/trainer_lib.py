@@ -7,12 +7,11 @@ from src import utils
 from src.traditional.keyword import train_keywords
 from src.traditional.keyword import load_keywords
 from src.traditional.model import SentSimModel
-from src.data_utils.vocab import Tokenizer
 
 
 def process(args):
     utils.make_directory(args.path['model'])
-    tokenizer = Tokenizer(args.path['vocab'])
+    tokenizer = args.tokenizer(args.path['vocab'])
     model = SentSimModel(args.path['model'], args.num_topics,
                          args.num_keywords, args.num_trees)
     train_x = utils.read_lines(args.path['train_x'])

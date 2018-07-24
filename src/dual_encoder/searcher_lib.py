@@ -7,16 +7,13 @@ import tensorflow as tf
 from annoy import AnnoyIndex
 
 from src import utils
-from src.dual_encoder.model import SoloModel
-from src.data_utils.vocab import Tokenizer
-from src.data_utils.data import SoloBatch
 
 
 class Searcher(object):
     def __init__(self, args):
-        tokenizer = Tokenizer(args.path['vocab'])
-        self.infer_batch = SoloBatch(tokenizer, [args.x_max_len, args.y_max_len])
-        self.model = SoloModel(args)
+        tokenizer = args.tokenizer(args.path['vocab'])
+        self.infer_batch = args.batch(tokenizer, [args.x_max_len, args.y_max_len])
+        self.model = args.model(args)
         self.ann = AnnoyIndex(args.hidden)
         self.ann.load(args.path['ann'])
         self.sess = tf.Session()

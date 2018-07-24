@@ -11,6 +11,7 @@ import platform
 
 from src.dual_encoder import model
 from src.data_utils import data
+from src.data_utils.vocab import Tokenizer
 
 
 def verbose(line):
@@ -96,6 +97,7 @@ def _fake_args():
 
 def _reconstruct_args(args):
     hp_mode, hparams = args.hparams.split('_')
+    args.tokenizer = Tokenizer
 
     if hparams == 'lstm':
         original = model.lstm()

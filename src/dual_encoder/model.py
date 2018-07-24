@@ -54,8 +54,7 @@ class RetrievalModel(object):
         raise NotImplementedError()
 
     def _steps(self, features, fetch_names):
-        feed_dict = {self.features.get(i[: -3]): features[i] for i in features
-                     if i.endswith('_ph')}
+        feed_dict = {self.features.get(k[: -3]): v for k, v in features if k.endswith('_ph')}
         fetches = [self.features[i] for i in fetch_names]
         return fetches, feed_dict
 
@@ -81,8 +80,8 @@ class SoloModel(RetrievalModel):
     def bottom(self, features):
         with tf.variable_scope('placeholders'):
             features['keep_prob'] = tf.placeholder(tf.float32, None, 'keep_prob')
-            features['input_x'] = tf.placeholder(tf.int32, [None, None, None], 'input_x')
-            features['input_y'] = tf.placeholder(tf.int32, [None, None, None], 'input_y')
+            features['input_x'] = tf.placeholder(tf.int32, [None] * 3, 'input_x')
+            features['input_y'] = tf.placeholder(tf.int32, [None] * 3, 'input_y')
 
         with tf.variable_scope('variables'):
             features['global_step'] = tf.Variable(0, trainable=False)
@@ -180,14 +179,14 @@ class PentaModel(RetrievalModel):
     def bottom(self, features):
         with tf.variable_scope('placeholders'):
             features['keep_prob'] = tf.placeholder(tf.float32, None, 'keep_prob')
-            for i in range(1, 6):
-                features['input_x_{}'.format(i)] = tf.placeholder(
-                    tf.int32, [None] * 3, 'input_x_{}'.format(i))
-            features['input_y'] = tf.placeholder(tf.int32, [None, None, None], 'input_y')
+            features['input_x'] = tf.placeholder(tf.int32, [None] * 4, 'input_x')
+            features['input_y'] = tf.placeholder(tf.int32, [None] * 3, 'input_y')
 
         with tf.variable_scope('variables'):
             features['global_step'] = tf.Variable(0, trainable=False)
+            input_x = tf.split(features['input_x'], [1] * 5, 0)
             for i in range(1, 6):
+                features['input_x_{}'.format(i)] = tf.squeeze(input_x[i - 1], 0)
                 features['x_{}_lens'.format(i)] = common_layers.length_last_axis(
                     features['input_x_{}'.format(i)])
             features['y_lens'] = common_layers.length_last_axis(features['input_y'])

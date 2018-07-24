@@ -8,9 +8,6 @@ import tensorflow as tf
 import time
 
 from src import utils
-from src.dual_encoder.model import SoloModel, PentaModel
-from src.data_utils.data import SoloBatch, PentaBatch
-from src.data_utils.vocab import Tokenizer
 
 
 class Recorder(object):
@@ -45,14 +42,14 @@ class Recorder(object):
 
 def process(args):
     utils.make_directory(args.path['model'])
-    tokenizer = Tokenizer(args.path['vocab'])
-    train_batch = SoloBatch(tokenizer, [args.x_max_len, args.y_max_len])
-    train_batch.set_data(utils.read_lines(args.path['train_x']),
-                         utils.read_lines(args.path['train_y']))
-    dev_batch = SoloBatch(tokenizer, [args.x_max_len, args.y_max_len])
-    dev_batch.set_data(utils.read_lines(args.path['dev_x']),
-                       utils.read_lines(args.path['dev_y']))
-    model = SoloModel(args)
+    tokenizer = args.tokenizer(args.path['vocab'])
+    train_batch = args.batch(tokenizer, [args.x_max_len, args.y_max_len])
+    train_batch.set_data(
+        utils.read_lines(args.path['train_x']), utils.read_lines(args.path['train_y']))
+    dev_batch = args.batch(tokenizer, [args.x_max_len, args.y_max_len])
+    dev_batch.set_data(
+        utils.read_lines(args.path['dev_x']), utils.read_lines(args.path['dev_y']))
+    model = args.model(args)
 
     os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu_device
     config = tf.ConfigProto()
