@@ -112,7 +112,7 @@ class SubCutter(object):
     def __init__(self):
         self.collector = None
         self.counter = None
-        self.stopwords = stop_word_list
+        self.stopwords = set(stop_word_list)
 
     def _reset(self):
         self.collector = []

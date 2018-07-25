@@ -4,12 +4,13 @@ from __future__ import division
 from __future__ import print_function
 
 from src import utils
+from src.utils import args_utils
 from src.data_utils import data_generator
 from src.data_utils import vocab_generator
 
 
 if __name__ == '__main__':
-    hparams = utils.minor_args()
+    hparams = args_utils.minor_args()
     utils.verbose('Start generating data')
     data_generator.process(hparams)
     utils.verbose('Finish generating data')

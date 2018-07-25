@@ -7,7 +7,7 @@ from __future__ import print_function
 # import os
 
 from src import utils
-from src import searcher_lib
+from src.utils import searcher_lib
 
 
 class Inspector(object):

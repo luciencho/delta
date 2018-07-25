@@ -4,60 +4,14 @@ from __future__ import division
 from __future__ import print_function
 
 import os
-import time
-import shutil
 import argparse
 import platform
 
+from src import utils
 from src.dual_encoder import model
 from src.data_utils import data
 from src.data_utils.vocab import Tokenizer
-
-
-def verbose(line):
-    print('[{}]\t{}'.format(
-        time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), line))
-
-
-def make_directory(directory):
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-
-
-def clean_and_make_directory(directory):
-    if os.path.exists(directory):
-        shutil.rmtree(directory)
-        time.sleep(5)
-    os.makedirs(directory)
-
-
-def raise_inexistence(path):
-    if not os.path.exists(path):
-        raise ValueError('directory or path {} does not exist'.format(
-            os.path.abspath(path)))
-
-
-def read_lines(path):
-    raise_inexistence(path)
-    with open(path, 'r', encoding='utf-8') as f:
-        return f.read().strip().split('\n')
-
-
-def write_lines(path, lines):
-    with open(path, 'w', encoding='utf-8') as f:
-        f.write('\n'.join(lines))
-
-
-def write_result(args, loss):
-    lines = []
-    file_path = os.path.join(args.tmp_dir, '{}.{}'.format(args.hparams, 'rst'))
-    for k, v in args.__dict__.items():
-        if not k.startswith('_'):
-            lines.append('hparams.{}: [{}]'.format(k, v))
-            verbose('hparams.{}: [{}]'.format(k, v))
-    lines.append('lowest loss: [{}]'.format(loss))
-    verbose('lowest loss: [{}]'.format(loss))
-    write_lines(file_path, lines)
+from src.utils import hparams_utils
 
 
 def _major_args():
@@ -100,11 +54,11 @@ def _reconstruct_args(args):
     args.tokenizer = Tokenizer
 
     if hparams == 'lstm':
-        original = model.lstm()
+        original = hparams_utils.lstm()
     elif hparams == 'gru':
-        original = model.gru()
+        original = hparams_utils.gru()
     elif hparams == 'lstmln':
-        original = model.lstm_ln()
+        original = hparams_utils.lstm_ln()
     else:
         raise ValueError('Unknown hparams: {}'.format(hparams))
 
@@ -121,7 +75,7 @@ def _reconstruct_args(args):
 
     for k, v in original.__dict__.items():
         if not k.startswith('_'):
-            verbose('add attribute {} [{}] to hparams'.format(k, v))
+            utils.verbose('add attribute {} [{}] to hparams'.format(k, v))
             setattr(args, k, v)
     return args
 

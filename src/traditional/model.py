@@ -114,7 +114,8 @@ class TFIDFModel(SentSimModel):
         self.dict.save(self.paths['dict'])
 
         utils.verbose('Start building tfidf index')
-        self.index = similarities.MatrixSimilarity(self.model[self.corpus])
+        self.index = similarities.SparseMatrixSimilarity(self.model[self.corpus])
+        # self.index = similarities.MatrixSimilarity(self.model[self.corpus])
         self.index.save(self.paths['index'])
 
     def get(self, toks):
@@ -127,7 +128,8 @@ class TFIDFModel(SentSimModel):
             utils.verbose('Load tfidf model from {}'.format(self.paths['model']))
             self.dict = corpora.Dictionary.load(self.paths['dict'])
             utils.verbose('Load tfidf dictionary from {}'.format(self.paths['dict']))
-            self.index = similarities.MatrixSimilarity.load(self.paths['index'])
+            self.index = similarities.SparseMatrixSimilarity.load(self.paths['index'])
+            # self.index = similarities.MatrixSimilarity.load(self.paths['index'])
             utils.verbose('Load tfidf index from {}'.format(self.paths['index']))
         else:
             raise ValueError('Files under directory {} disappear'.format(self.model_dir))
