@@ -133,10 +133,12 @@ class SoloModel(RetrievalModel):
 
     def interact_layer(self, features):
         with tf.variable_scope('interact_layer'):
-            interact_hidden = features['enc_x'].shape[-1]
+            shape = [features['enc_y'].shape[-1].value, features['enc_x'].shape[-1].value]
             transformed_enc_x = features['enc_x']
-            transformed_enc_y = common_layers.linear(
-                features['enc_y'], interact_hidden, False)
+            features['matrix'] = tf.get_variable(
+                'matrix', shape, dtype=tf.float32,
+                initializer=tf.truncated_normal_initializer())
+            transformed_enc_y = tf.matmul(features['enc_y'], features['matrix'])
             if self.hparam.use_layer_norm:
                 transformed_enc_y = common_layers.layer_norm(transformed_enc_y)
             features['logits'] = tf.matmul(
@@ -145,17 +147,21 @@ class SoloModel(RetrievalModel):
 
     def top(self, features):
         with tf.variable_scope('top'):
-            features['losses'] = tf.losses.softmax_cross_entropy(
-                features['labels'], features['logits'])
             features['acc'] = tf.contrib.metrics.accuracy(
                 predictions=tf.argmax(features['logits'], axis=-1),
                 labels=tf.argmax(features['labels'], axis=-1))
+
+            features['losses'] = tf.losses.softmax_cross_entropy(
+                features['labels'], features['logits'])
             features['loss'] = tf.reduce_mean(features['losses'], name='show_loss')
             trainable_vars = tf.trainable_variables()
             features['extra_loss'] = tf.reduce_mean(
                 self.hparam.l2_weight * tf.add_n(
                     [tf.nn.l2_loss(v) for v in trainable_vars if 'bias' not in v.name]),
                 name='mean_loss')
+            features['extra_loss'] += tf.losses.softmax_cross_entropy(
+                tf.matmul(features['matrix'], features['matrix'], transpose_b=True),
+                common_layers.get_labels(common_layers.length_last_axis(features['matrix'])))
 
             features['learning_rate'] = tf.train.exponential_decay(
                 self.hparam.learning_rate, features['global_step'],
