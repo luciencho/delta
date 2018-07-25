@@ -111,11 +111,11 @@ def _reconstruct_args(args):
     if hp_mode == 'solo':
         args.batch = data.SoloBatch
         args.model = model.SoloModel
-        args.max_lens = [args.x_max_len, args.y_max_len]
+        args.max_lens = [original.x_max_len, original.y_max_len]
     elif hp_mode == 'penta':
         args.batch = data.PentaBatch
         args.model = model.PentaModel
-        args.max_lens = [args.y_max_len, args.y_max_len]
+        args.max_lens = [original.y_max_len, original.y_max_len]
     else:
         raise ValueError('Unknown hp_mode: {}'.format(hp_mode))
 
