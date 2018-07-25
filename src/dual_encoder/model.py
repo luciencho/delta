@@ -235,7 +235,7 @@ class PentaModel(RetrievalModel):
 
     def interact_layer(self, features):
         with tf.variable_scope('interact_layer'):
-            interact_hidden = features['enc_x'].shape[-1]
+            interact_hidden = features['enc_x'].shape[-1].value
             transformed_enc_x = features['enc_x']
             transformed_enc_y = common_layers.linear(
                 features['enc_y'], interact_hidden, False)
