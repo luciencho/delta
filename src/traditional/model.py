@@ -4,125 +4,137 @@ from __future__ import division
 from __future__ import print_function
 
 import os
-from gensim import models, corpora
+from gensim import models, corpora, similarities
 from annoy import AnnoyIndex
 
 from src import utils
 
 
 class SentSimModel(object):
-    def __init__(self, model_dir='', num_topics=None, num_keywords=None, num_trees=10):
-        self._allowed_modes = ['tfidf', 'lda']
-        self.dictionary = {mode: None for mode in self._allowed_modes}
-        self.corpus = {mode: None for mode in self._allowed_modes}
-        self.models = {mode: None for mode in self._allowed_modes}
-        self.annoys = {mode: None for mode in self._allowed_modes}
-        self.model_dir = model_dir
-        self.num_topics = num_topics
-        self.num_keywords = num_keywords
-        self.num_trees = num_trees
+    def __init__(self, args):
+        self.model_dir = args.path['model']
+        self.dict = None
+        self.corpus = None
+        self.model = None
 
-    def _fit(self, list_of_tokens, mode):
-        utils.verbose('start training {} dictionary'.format(mode))
-        self.dictionary[mode] = corpora.Dictionary(list_of_tokens)
-        utils.verbose('start building {} corpus'.format(mode))
-        self.corpus[mode] = [
-            self.dictionary[mode].doc2bow(toks) for toks in list_of_tokens]
-        utils.verbose('start training {} model'.format(mode))
-        if mode == 'lda':
-            self.models['lda'] = models.LdaMulticore(
-                self.corpus['lda'], self.num_topics, id2word=self.dictionary['lda'])
-        elif mode == 'tfidf':
-            self.models['tfidf'] = models.TfidfModel(self.corpus['tfidf'])
-        else:
-            raise ValueError('Invalid mode: {}'.format(mode))
-        utils.verbose('start saving {} dictionary and model'.format(mode))
-        self.models[mode].save(os.path.join(self.model_dir, '{}.pkl'.format(mode)))
-        self.dictionary[mode].save(os.path.join(self.model_dir, '{}.dict'.format(mode)))
-        self._fit_vec(list_of_tokens, mode)
+    def fit(self, list_toks):
+        raise NotImplementedError()
 
-    def _fit_vec(self, list_of_tokens, mode):
-        ann_path = os.path.join(self.model_dir, '{}.ann'.format(mode))
-        if mode == 'tfidf':
-            self.annoys[mode] = AnnoyIndex(self.num_keywords)
-        elif mode == 'lda':
-            self.annoys[mode] = AnnoyIndex(self.num_topics)
-        else:
-            raise ValueError('Invalid mode: {}'.format(mode))
-        for n, toks in enumerate(list_of_tokens):
+    def get(self, toks):
+        raise NotImplementedError()
+
+    def load(self):
+        raise NotImplementedError()
+
+    def search(self, toks, num):
+        raise NotImplementedError()
+
+
+class LDAModel(SentSimModel):
+    def __init__(self, args):
+        super(LDAModel, self).__init__(args)
+        self.vec_dim = args.num_topics
+        self.num_trees = args.num_trees
+        self.ann = None
+        self.paths = dict(model=os.path.join(self.model_dir, 'lda.pkl'),
+                          dict=os.path.join(self.model_dir, 'lda.dict'),
+                          ann=os.path.join(self.model_dir, 'lda.ann'))
+
+    def fit(self, list_toks):
+        utils.verbose('start training lda dictionary')
+        self.dict = corpora.Dictionary(list_toks)
+
+        utils.verbose('start building lda corpus')
+        self.corpus = [self.dict.doc2bow(toks) for toks in list_toks]
+
+        utils.verbose('start training lda model')
+        self.model = models.LdaMulticore(self.corpus, self.vec_dim, id2word=self.dict)
+
+        utils.verbose('start saving lda dictionary and model')
+        self.model.save(self.paths['model'])
+        self.dict.save(self.paths['dict'])
+
+        utils.verbose('start vectorization for lda')
+        self.ann = AnnoyIndex(self.vec_dim)
+        for n, toks in enumerate(list_toks):
             if not n % 10000 and n:
-                utils.verbose(
-                    'processing vectorization for {} lines in {} mode'.format(n, mode))
-            if mode == 'tfidf':
-                vec = self.get_tfidf(toks)
-            elif mode == 'lda':
-                vec = self.get_lda(toks)
-            else:
-                raise ValueError('Invalid mode: {}'.format(mode))
-            self.annoys[mode].add_item(n, vec)
-        self.annoys[mode].build(10)
-        self.annoys[mode].save(ann_path)
-        utils.verbose('dump {} annoy into {}'.format(mode, ann_path))
+                utils.verbose('vectorizing {} lines for lda'.format(n))
+            vec = self.get(toks)
+            self.ann.add_item(n, vec)
 
-    def _get(self, toks, mode):
-        vec_bow = self.dictionary[mode].doc2bow(toks)
-        if mode == 'lda':
-            vec = [0] * self.num_topics
-            resu = self.models['lda'].get_document_topics(vec_bow)
-        elif mode == 'tfidf':
-            vec = [0] * self.num_keywords
-            resu = self.models['tfidf'][vec_bow]
-        else:
-            raise ValueError('invalid mode: {}'.format(mode))
+        utils.verbose('start building lda ann')
+        self.ann.build(10)
+        self.ann.save(self.paths['ann'])
+        utils.verbose('dump lda annoy into {}'.format(self.paths['ann']))
+
+    def get(self, toks):
+        vec_bow = self.dict.doc2bow(toks)
+        vec = [0] * self.vec_dim
+        resu = self.model.get_document_topics(vec_bow)
         for x, y in resu:
             vec[x] = y
         return vec
 
-    def _load(self, mode):
-        path_model = os.path.join(self.model_dir, '{}.pkl'.format(mode))
-        path_dict = os.path.join(self.model_dir, '{}.dict'.format(mode))
-        path_ann = os.path.join(self.model_dir, '{}.ann'.format(mode))
-        if all([os.path.exists(i) for i in [path_model, path_dict, path_ann]]):
-            if mode == 'lda':
-                self.models[mode] = models.LdaMulticore.load(path_model)
-            elif mode == 'tfidf':
-                self.models[mode] = models.TfidfModel.load(path_model)
-            else:
-                raise ValueError('Invalid mode: {}'.format(mode))
-            utils.verbose('load {} model from {}'.format(mode, path_model))
-            self.dictionary[mode] = corpora.Dictionary.load(path_dict)
-            utils.verbose('load {} dictionary from {}'.format(mode, path_dict))
-            if mode == 'lda':
-                self.annoys[mode] = AnnoyIndex(self.num_topics)
-            elif mode == 'tfidf':
-                self.annoys[mode] = AnnoyIndex(self.num_keywords)
-            else:
-                raise ValueError('Invalid mode: {}'.format(mode))
-            self.annoys[mode].load(path_ann)
-            utils.verbose('load {} annoy from {}'.format(mode, path_ann))
+    def load(self):
+        if all([os.path.exists(i) for i in self.paths.values()]):
+            self.model = models.LdaMulticore.load(self.paths['model'])
+            utils.verbose('load lda model from {}'.format(self.paths['model']))
+            self.dict = corpora.Dictionary.load(self.paths['dict'])
+            utils.verbose('load lda dictionary from {}'.format(self.paths['dict']))
+            self.ann = AnnoyIndex(self.vec_dim)
+            self.ann.load(self.paths['ann'])
+            utils.verbose('load lda annoy from {}'.format(self.paths['ann']))
         else:
-            raise ValueError('File under directory {} is not found'.format(self.model_dir))
+            raise ValueError('Files under directory {} disappear'.format(self.model_dir))
 
-    def fit_lda(self, list_of_tokens):
-        self._fit(list_of_tokens, 'lda')
+    def search(self, toks, num):
+        return self.ann.get_nns_by_vector(self.get(toks), num)
 
-    def fit_tfidf(self, list_of_tokens):
-        self._fit(list_of_tokens, 'tfidf')
 
-    def get_lda(self, toks):
-        return self._get(toks, 'lda')
+class TFIDFModel(SentSimModel):
+    def __init__(self, args):
+        super(TFIDFModel, self).__init__(args)
+        self.index = None
+        self.paths = dict(model=os.path.join(self.model_dir, 'tfidf.pkl'),
+                          dict=os.path.join(self.model_dir, 'tfidf.dict'),
+                          index=os.path.join(self.model_dir, 'tfidf.index'))
 
-    def get_tfidf(self, toks):
-        return self._get(toks, 'tfidf')
+    def fit(self, list_toks):
+        utils.verbose('start training tfidf dictionary')
+        self.dict = corpora.Dictionary(list_toks)
 
-    def load_lda(self):
-        self._load('lda')
+        utils.verbose('start building tfidf corpus')
+        self.corpus = [self.dict.doc2bow(toks) for toks in list_toks]
 
-    def load_tfidf(self):
-        self._load('tfidf')
+        utils.verbose('start training tfidf model')
+        self.model = models.TfidfModel(self.corpus)
 
-    def search_tfidf(self, toks, num):
-        return self.annoys['tfidf'].get_nns_by_vector(self.get_tfidf(toks), num)
+        utils.verbose('start saving tfidf dictionary and model')
+        self.model.save(self.paths['model'])
+        self.dict.save(self.paths['dict'])
 
-    def search_lda(self, toks, num):
-        return self.annoys['lda'].get_nns_by_vector(self.get_lda(toks), num)
+        utils.verbose('start building tfidf index')
+        self.index = similarities.MatrixSimilarity(self.model[self.corpus])
+        self.index.save(self.paths['index'])
+
+    def get(self, toks):
+        vec_bow = self.dict.doc2bow(toks)
+        return self.model[vec_bow]
+
+    def load(self):
+        if all([os.path.exists(i) for i in self.paths.values()]):
+            self.model = models.TfidfModel.load(self.paths['model'])
+            utils.verbose('load tfidf model from {}'.format(self.paths['model']))
+            self.dict = corpora.Dictionary.load(self.paths['dict'])
+            utils.verbose('load tfidf dictionary from {}'.format(self.paths['dict']))
+            self.index = similarities.MatrixSimilarity.load(self.paths['index'])
+            utils.verbose('load tfidf index from {}'.format(self.paths['index']))
+        else:
+            raise ValueError('Files under directory {} disappear'.format(self.model_dir))
+
+    def search(self, toks, num):
+        vec = self.get(toks)
+        candidates = self.index[vec]
+        candidates_sort = sorted(
+            list(enumerate(candidates)), key=lambda item: item[1], reverse=True)
+        return candidates_sort[: num]

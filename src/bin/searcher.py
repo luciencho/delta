@@ -7,14 +7,14 @@ from __future__ import print_function
 # import os
 
 from src import utils
-from src.dual_encoder.searcher_lib import Searcher as DualEncoderSearcher
-from src.traditional.searcher_lib import Searcher as TraditionalSearcher
+from src import searcher_lib
 
 
 class Inspector(object):
     def __init__(self, args):
-        self.dual_encoder_searcher = DualEncoderSearcher(args)
-        self.traditional_searcher = TraditionalSearcher(args)
+        self.dual_encoder_searcher = searcher_lib.DualEncoderSearcher(args)
+        self.lda_searcher = searcher_lib.LDASearcher(args)
+        self.tfidf_searcher = searcher_lib.TFIDFSearcher(args)
         self.questions = utils.read_lines(args.path['train_x'])
         self.answers = utils.read_lines(args.path['train_y'])
 
@@ -27,13 +27,13 @@ class Inspector(object):
             print('answer: {}'.format(self.answers[idx]))
 
     def view_lda_candidates(self, line, num_keeps=50):
-        self._view_candidates(self.traditional_searcher.search_by_lda, line, num_keeps)
+        self._view_candidates(self.lda_searcher.search_line, line, num_keeps)
 
     def view_de_candidates(self, line, num_keeps=50):
         self._view_candidates(self.dual_encoder_searcher.search_line, line, num_keeps)
 
     def view_tfidf_candidates(self, line, num_keeps=50):
-        self._view_candidates(self.traditional_searcher.search_by_tfidf, line, num_keeps)
+        self._view_candidates(self.tfidf_searcher.search_line, line, num_keeps)
 
 
 # def run_prediction(in_path, out_path):
