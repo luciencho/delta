@@ -161,7 +161,7 @@ class SoloModel(RetrievalModel):
                 name='mean_loss')
             features['extra_loss'] += tf.losses.softmax_cross_entropy(
                 tf.matmul(features['matrix'], features['matrix'], transpose_b=True),
-                common_layers.get_labels(common_layers.length_last_axis(features['matrix'])))
+                tf.eye(features['matrix'].shape[-1]))
 
             features['learning_rate'] = tf.train.exponential_decay(
                 self.hparam.learning_rate, features['global_step'],
