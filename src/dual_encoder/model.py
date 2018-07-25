@@ -185,9 +185,9 @@ class PentaModel(RetrievalModel):
 
         with tf.variable_scope('variables'):
             features['global_step'] = tf.Variable(0, trainable=False)
-            input_x = tf.split(features['input_x'], [1] * 5, 0)
+            input_x = tf.split(features['input_x'], [1] * 5, 1)
             for i in range(1, 6):
-                features['input_x_{}'.format(i)] = tf.squeeze(input_x[i - 1], 0)
+                features['input_x_{}'.format(i)] = tf.squeeze(input_x[i - 1], 1)
                 features['x_{}_lens'.format(i)] = common_layers.length_last_axis(
                     features['input_x_{}'.format(i)])
             features['y_lens'] = common_layers.length_last_axis(features['input_y'])

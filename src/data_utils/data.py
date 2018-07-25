@@ -77,7 +77,7 @@ class PentaBatch(Batch):
         super(PentaBatch, self).__init__(tokenizer, max_lens)
 
     def encode_x(self, line):
-        return [self._encode_line(l, self.max_lens[0]) for l in line.split('<s>')]
+        return [self._encode_line(l, self.max_lens[0]) for l in line.split('<s>') if l]
 
     def encode_y(self, line):
         return self._encode_line(line, self.max_lens[1])

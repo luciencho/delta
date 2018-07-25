@@ -90,7 +90,7 @@ def _fake_args():
         else:
             tmp_dir = r'/submission/tmp'
             model_dir = r'/submission/models'
-        hparams = 'solo_lstm'
+        hparams = 'penta_lstm'
 
     return FakeArgs()
 
