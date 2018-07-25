@@ -127,7 +127,7 @@ def _reconstruct_args(args):
 
 
 def major_args(use_fake=False):
-    """ args for trainer and searcher
+    """ args for trainer & searcher
 
     :param use_fake: bool
     :return: args

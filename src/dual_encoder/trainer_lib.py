@@ -4,8 +4,10 @@ from __future__ import division
 from __future__ import print_function
 
 import os
+import numpy as np
 import tensorflow as tf
 import time
+from annoy import AnnoyIndex
 
 from src import utils
 
@@ -100,3 +102,33 @@ def process(args):
                         features['train_acc'], features['dev_loss'], features['dev_acc']))
                 print('-+' * 55)
                 utils.write_result(args, recorder.lowest_loss)
+
+        utils.verbose('Start building vector space from dual encoder model')
+        vectors = []
+        infer_batch = args.batch(tokenizer, args.max_lens)
+        infer_batch.set_data(utils.read_lines(args.path['train_x']),
+                             utils.read_lines(args.path['train_y']))
+        starter = time.time()
+        idx = 0
+        update_epoch = False
+        i = 0
+        while not update_epoch:
+            input_x, input_y, idx, update_epoch = infer_batch.next_batch(
+                args.batch_size, idx)
+            infer_features = {'input_x_ph': input_x, 'keep_prob_ph': 1.0}
+            infer_fetches, infer_feed = model.infer_step(infer_features)
+            enc_questions = sess.run(infer_fetches, infer_feed)
+            vectors += enc_questions
+            if not i % args.show_steps and i:
+                speed = args.show_steps / (time.time() - starter)
+                utils.verbose('step : {:05d} | speed: {:.5f} it/s'.format(i, speed))
+                starter = time.time()
+            i += 1
+    vectors = np.reshape(np.array(vectors), [-1, args.hidden])[: infer_batch.data_size]
+    vec_dim = vectors.shape[-1]
+    ann = AnnoyIndex(vec_dim)
+    for n, ii in enumerate(vectors):
+        ann.add_item(n, ii)
+    ann.build(args.num_trees)
+    ann.save(args.path['ann'])
+    utils.verbose('Annoy has been dump in {}'.format(args.path['ann']))

@@ -4,8 +4,7 @@ from __future__ import division
 from __future__ import print_function
 
 from src import utils
-from src.traditional.keyword import train_keywords
-from src.traditional.keyword import load_keywords
+from src.traditional.keyword import train_keywords, load_keywords
 from src.traditional.model import LDAModel, TFIDFModel
 
 
@@ -19,14 +18,14 @@ def process(args):
 
     if args.problem == 'lda':
         model = LDAModel(args)
+    else:
         trainset = [tokenizer.encode_line_into_words(i) for i in dataset]
         train_keywords(trainset, args.path['model'])
         keywords = load_keywords(args.path['model'])
-    else:
         model = TFIDFModel(args)
 
     list_toks = []
-    for n, line in enumerate(dataset):
+    for n, line in enumerate(train_x):
         if not n % 10000 and n:
             utils.verbose('Tokenizing {} lines for {}'.format(n, args.problem))
         if keywords is None:

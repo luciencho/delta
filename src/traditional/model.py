@@ -63,7 +63,7 @@ class LDAModel(SentSimModel):
             self.ann.add_item(n, vec)
 
         utils.verbose('start building lda ann')
-        self.ann.build(10)
+        self.ann.build(self.num_trees)
         self.ann.save(self.paths['ann'])
         utils.verbose('dump lda annoy into {}'.format(self.paths['ann']))
 
@@ -100,20 +100,20 @@ class TFIDFModel(SentSimModel):
                           index=os.path.join(self.model_dir, 'tfidf.index'))
 
     def fit(self, list_toks):
-        utils.verbose('start training tfidf dictionary')
+        utils.verbose('Start training tfidf dictionary')
         self.dict = corpora.Dictionary(list_toks)
 
-        utils.verbose('start building tfidf corpus')
+        utils.verbose('Start building tfidf corpus')
         self.corpus = [self.dict.doc2bow(toks) for toks in list_toks]
 
-        utils.verbose('start training tfidf model')
+        utils.verbose('Start training tfidf model')
         self.model = models.TfidfModel(self.corpus)
 
-        utils.verbose('start saving tfidf dictionary and model')
+        utils.verbose('Start saving tfidf dictionary and model')
         self.model.save(self.paths['model'])
         self.dict.save(self.paths['dict'])
 
-        utils.verbose('start building tfidf index')
+        utils.verbose('Start building tfidf index')
         self.index = similarities.MatrixSimilarity(self.model[self.corpus])
         self.index.save(self.paths['index'])
 
@@ -124,11 +124,11 @@ class TFIDFModel(SentSimModel):
     def load(self):
         if all([os.path.exists(i) for i in self.paths.values()]):
             self.model = models.TfidfModel.load(self.paths['model'])
-            utils.verbose('load tfidf model from {}'.format(self.paths['model']))
+            utils.verbose('Load tfidf model from {}'.format(self.paths['model']))
             self.dict = corpora.Dictionary.load(self.paths['dict'])
-            utils.verbose('load tfidf dictionary from {}'.format(self.paths['dict']))
+            utils.verbose('Load tfidf dictionary from {}'.format(self.paths['dict']))
             self.index = similarities.MatrixSimilarity.load(self.paths['index'])
-            utils.verbose('load tfidf index from {}'.format(self.paths['index']))
+            utils.verbose('Load tfidf index from {}'.format(self.paths['index']))
         else:
             raise ValueError('Files under directory {} disappear'.format(self.model_dir))
 
