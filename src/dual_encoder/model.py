@@ -54,7 +54,8 @@ class RetrievalModel(object):
         raise NotImplementedError()
 
     def _steps(self, features, fetch_names):
-        feed_dict = {self.features.get(k[: -3]): v for k, v in features if k.endswith('_ph')}
+        feed_dict = {self.features[k[: -3]]: v for k, v in features.items()
+                     if k.endswith('_ph')}
         fetches = [self.features[i] for i in fetch_names]
         return fetches, feed_dict
 
