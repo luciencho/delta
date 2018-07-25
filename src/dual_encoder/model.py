@@ -226,7 +226,7 @@ class PentaModel(RetrievalModel):
                         self.hparam.hidden, self.hparam.num_layers,
                         self.hparam.rnn_type, features['keep_prob'])
                     enc_x.append(tf.expand_dims(features['enc_x_{}'.format(i)], axis=0))
-                enc_x = tf.concat(enc_x, axis=0)
+                enc_x = tf.transpose(tf.concat(enc_x, axis=0), [1, 0, 2])
             with tf.variable_scope('encode_all'):
                 _, features['enc_x'] = common_layers.bidirectional_rnn(
                     enc_x, common_layers.length_last_axis(enc_x), self.hparam.hidden,
