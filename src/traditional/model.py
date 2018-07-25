@@ -114,7 +114,8 @@ class TFIDFModel(SentSimModel):
         self.dict.save(self.paths['dict'])
 
         utils.verbose('Start building tfidf index')
-        self.index = similarities.SparseMatrixSimilarity(self.model[self.corpus])
+        self.index = similarities.SparseMatrixSimilarity(
+            self.model[self.corpus], num_features=500)
         # self.index = similarities.MatrixSimilarity(self.model[self.corpus])
         self.index.save(self.paths['index'])
 
