@@ -13,24 +13,25 @@ python trainer.py
     --tmp_dir $TMP_DIR
     --model_dir $MODEL_DIR
     --hparams $HPARAMS
-    --problems retrieval
-python vector.py
-    --tmp_dir $TMP_DIR
-    --model_dir $MODEL_DIR
-    --hparams $HPARAMS
+    --gpu_device 0
+    --gpu_memory 0.23
+    --problems dual_encoder
 ```
-### For Traditional Retrieval Model Training
+### For TFIDF Retrieval Model Training
 ```
 python trainer.py
     --tmp_dir $TMP_DIR
     --model_dir $MODEL_DIR
     --hparams $HPARAMS
-    --problems keyword
+    --problems tfidf
+```
+### For LDA Retrieval Model Training
+```
 python trainer.py
     --tmp_dir $TMP_DIR
     --model_dir $MODEL_DIR
     --hparams $HPARAMS
-    --problems retrieval_trad
+    --problems lda
 
 ```
 ### For File-to-File Decoding
