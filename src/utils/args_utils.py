@@ -59,6 +59,8 @@ def _reconstruct_args(args):
         original = hparams_utils.gru()
     elif hparams == 'lstmln':
         original = hparams_utils.lstm_ln()
+    elif hparams == 'lstmrcnn':
+        original = hparams_utils.lstm_rcnn()
     else:
         raise ValueError('Unknown hparams: {}'.format(hparams))
 

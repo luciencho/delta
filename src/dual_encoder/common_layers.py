@@ -29,15 +29,11 @@ def rnn_attention(inputs, attention_size, return_alphas, name_scope=None):
         u_omega = tf.Variable(tf.random_normal([attention_size], stddev=0.1))
 
         with tf.name_scope('v'):
-            # Applying fully connected layer with non-linear activation to each of the B*T timestamps;
-            #  the shape of `v` is (B,T,D)*(D,A)=(B,T,A), where A=attention_size
             v = tf.tanh(tf.tensordot(inputs, w_omega, axes=1) + b_omega)
 
-        # For each of the timestamps its vector of size A from `v` is reduced with `u` vector
         vu = tf.tensordot(v, u_omega, axes=1, name='vu')  # (B,T) shape
         alphas = tf.nn.softmax(vu, name='alphas')  # (B,T) shape
 
-        # Output of (Bi-)RNN is reduced with attention vector; the result has (B,D) shape
         output = tf.reduce_sum(inputs * tf.expand_dims(alphas, -1), 1)
 
         if not return_alphas:
@@ -64,7 +60,7 @@ def rnn_cell(hidden, num_layers=1, rnn_type='lstm', dropout=0.8, scope=None):
 
 def bidirectional_rnn(inputs, seq_lens, hidden, num_layers=1,
                       rnn_type='lstm', keep_prob=0.8, scope=None):
-    """
+    """ Bidirectional RNN
 
     :param inputs: input tensor must be ranked 3 [batch_size, seq_len, emb_dim]
     :param seq_lens: input sequence lengths ranked 1 [batch_size]
@@ -74,7 +70,7 @@ def bidirectional_rnn(inputs, seq_lens, hidden, num_layers=1,
     :param keep_prob: (0, 1]
     :param scope: name scope
     :return:
-        outputs: [batch_size, seq_len, 2 * hidden]
+        outputs: ([batch_size, seq_len, hidden], [batch_size, seq_len, hidden])
         states: [batch_size, hidden]
     """
     with tf.variable_scope(scope or 'bd_rnn'):
@@ -83,13 +79,13 @@ def bidirectional_rnn(inputs, seq_lens, hidden, num_layers=1,
         outputs, states = tf.nn.bidirectional_dynamic_rnn(
             fw_cell, bw_cell, inputs, seq_lens, dtype=tf.float32)
     if rnn_type.lower() == 'lstm':
-        return tf.concat(outputs, axis=-1), states[-1][-1].h
+        return outputs, states[-1][-1].h
     elif rnn_type.lower() == 'gru':
-        return tf.concat(outputs, axis=-1), states[-1][-1]
+        return outputs, states[-1][-1]
 
 
 def conv_2d(embed_inputs, max_len, filter_sizes, num_filters, keep_prob):
-    """
+    """ 2D CNN
 
     :param embed_inputs: input tensor must be ranked 3 [batch_size, seq_len, emb_dim]
     :param max_len: maximal length for inputs
@@ -141,8 +137,8 @@ def get_embedding(word_vars, char_vars, inputs, keep_prob):
 
 
 def linear(inputs, output_size, use_bias, concat=False, scope=None):
-    """
-    Linear layer
+    """ Linear layer
+
     :param inputs: A Tensor or a list of Tensors with shape [batch, input_size]
     :param output_size: An integer specify the output size
     :param use_bias: a boolean value indicate whether to use bias term
@@ -197,8 +193,8 @@ def linear(inputs, output_size, use_bias, concat=False, scope=None):
 
 
 def layer_norm(inputs, epsilon=1e-6, dtype=None, scope=None):
-    """
-    Layer Normalization
+    """ Layer Normalization
+
     :param inputs: A Tensor of shape [..., channel_size]
     :param epsilon: A floating number
     :param dtype: An optional instance of tf.DType
@@ -222,3 +218,38 @@ def layer_norm(inputs, epsilon=1e-6, dtype=None, scope=None):
         norm_inputs = (inputs - mean) * tf.rsqrt(variance + epsilon)
 
         return norm_inputs * scale + offset
+
+
+def rcnn(inputs, seq_lens, rnn_hidden, hidden, keep_prob, scope=None):
+    """ R-CNN
+
+    :param inputs: embedding [batch_size, seq_len, emb_dim]
+    :param seq_lens: sequence lengths for (bi)rnn
+    :param rnn_hidden: hidden number for (bi)rnn
+    :param hidden: hidden for text representation
+    :param keep_prob: dropout keep probability
+    :param scope: optional scope name
+    :return: text level representation [batch_size, hidden]
+    """
+    with tf.variable_scope(scope or "rcnn"):
+        (output_fw, output_bw), _ = bidirectional_rnn(
+            inputs, seq_lens, rnn_hidden, 1, 'lstm', keep_prob, "rcnn_bd_lstm")
+
+        with tf.name_scope("context"):
+            shape = [output_fw.shape[0].value, 1, output_fw.shape[2].value]
+            con_l = tf.concat([tf.zeros(shape), output_fw[:, :-1]], axis=1, name="context_left")
+            con_r = tf.concat([output_bw[:, 1:], tf.zeros(shape)], axis=1, name="context_right")
+
+        with tf.name_scope("word_level"):
+            x = tf.concat([con_l, inputs, con_r], axis=2)
+            embedding_size = 2 * rnn_hidden + inputs.shape[-1].value
+
+        with tf.name_scope("sentence_level"):
+            w = tf.get_variable('w', [embedding_size, hidden], tf.float32,
+                                initializer=tf.truncated_normal_initializer())
+            b = tf.get_variable('b', [hidden], tf.float32,
+                                initializer=tf.truncated_normal_initializer(0.1))
+            out = tf.einsum('aij,jk->aik', x, w) + b
+            out = tf.reduce_max(out, axis=1)
+
+    return out

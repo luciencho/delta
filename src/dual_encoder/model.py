@@ -113,22 +113,42 @@ class SoloModel(RetrievalModel):
         return features
 
     def encode_layer(self, features):
-        with tf.variable_scope('encode_layer'):
-            _, features['enc_x'] = common_layers.bidirectional_rnn(
-                features['emb_x'],
-                features['x_lens'],
-                self.hparam.hidden,
-                self.hparam.num_layers,
-                self.hparam.rnn_type,
-                features['keep_prob'])
-            tf.get_variable_scope().reuse_variables()
-            _, features['enc_y'] = common_layers.bidirectional_rnn(
-                features['emb_y'],
-                features['y_lens'],
-                self.hparam.hidden,
-                self.hparam.num_layers,
-                self.hparam.rnn_type,
-                features['keep_prob'])
+        with tf.variable_scope('encode_layer', reuse=True):
+            if self.hparam.encode_type == 'bidirectional_rnn':
+                _, features['enc_x'] = common_layers.bidirectional_rnn(
+                    features['emb_x'],
+                    features['x_lens'],
+                    self.hparam.hidden,
+                    self.hparam.num_layers,
+                    self.hparam.rnn_type,
+                    features['keep_prob'],
+                    'text_representation')
+                _, features['enc_y'] = common_layers.bidirectional_rnn(
+                    features['emb_y'],
+                    features['y_lens'],
+                    self.hparam.hidden,
+                    self.hparam.num_layers,
+                    self.hparam.rnn_type,
+                    features['keep_prob'],
+                    'text_representation')
+            elif self.hparam.encode_type == 'rcnn':
+                features['enc_x'] = common_layers.rcnn(
+                    features['emb_x'],
+                    features['x_lens'],
+                    self.hparam.hidden,
+                    self.hparam.hidden,
+                    features['keep_prob'],
+                    'text_representation')
+                features['enc_y'] = common_layers.rcnn(
+                    features['emb_y'],
+                    features['y_lens'],
+                    self.hparam.hidden,
+                    self.hparam.hidden,
+                    features['keep_prob'],
+                    'text_representation')
+            else:
+                raise ValueError('Invalid encode_type: {}'.format(
+                    self.hparam.encode_type))
         return features
 
     def interact_layer(self, features):

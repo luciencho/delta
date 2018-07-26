@@ -16,6 +16,7 @@ def lstm():
         hidden=128,
         num_layers=1,
         rnn_type='lstm',
+        encode_type='bidirectional_rnn',
         use_layer_norm=False,
         l2_weight=1e-4,
         learning_rate=5e-3,
@@ -40,4 +41,10 @@ def gru():
 def lstm_ln():
     hparams = lstm()
     hparams.use_layer_norm = True
+    return hparams
+
+
+def lstm_rcnn():
+    hparams = lstm()
+    hparams.encode_type = 'rcnn'
     return hparams
