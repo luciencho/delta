@@ -246,9 +246,9 @@ def rcnn(inputs, seq_lens, rnn_hidden, hidden, keep_prob, scope=None):
 
         with tf.name_scope("sentence_level"):
             w = tf.get_variable('w', [embedding_size, hidden], tf.float32,
-                                initializer=tf.truncated_normal_initializer())
+                                initializer=tf.contrib.layers.xavier_initializer())
             b = tf.get_variable('b', [hidden], tf.float32,
-                                initializer=tf.truncated_normal_initializer(0.1))
+                                initializer=tf.truncated_normal_initializer())
             out = tf.einsum('aij,jk->aik', x, w) + b
             out = tf.reduce_max(out, axis=1)
 
