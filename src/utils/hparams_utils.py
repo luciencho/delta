@@ -15,6 +15,7 @@ def lstm():
         emb_dim=256,
         hidden=128,
         num_layers=1,
+        max_clip=1.0,
         rnn_type='lstm',
         encode_type='bidirectional_rnn',
         use_layer_norm=False,
@@ -47,4 +48,5 @@ def lstm_ln():
 def lstm_rcnn():
     hparams = lstm()
     hparams.encode_type = 'rcnn'
+    hparams.max_clip = 0.1
     return hparams

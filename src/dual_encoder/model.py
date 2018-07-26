@@ -190,8 +190,9 @@ class SoloModel(RetrievalModel):
                 100, self.hparam.decay_rate)
             opt = tf.contrib.opt.LazyAdamOptimizer(learning_rate=features['learning_rate'])
             grads_vars = opt.compute_gradients(features['loss'] + features['extra_loss'])
-            capped_grads_vars = [[
-                tf.clip_by_value(g, -1, 1), v] for g, v in grads_vars if g is not None]
+            capped_grads_vars = [
+                [tf.clip_by_value(g, - self.hparam.max_clip, self.hparam.max_clip),
+                 v] for g, v in grads_vars if g is not None]
             features['train_op'] = opt.apply_gradients(capped_grads_vars, features['global_step'])
         return features
 
