@@ -236,7 +236,7 @@ def rcnn(inputs, seq_lens, rnn_hidden, hidden, keep_prob, scope=None):
             inputs, seq_lens, rnn_hidden, 1, 'lstm', keep_prob, "rcnn_bd_lstm")
 
         with tf.name_scope("context"):
-            shape = [output_fw.shape[0].value, 1, output_fw.shape[2].value]
+            shape = [tf.shape(output_fw)[0], 1, tf.shape(output_fw)[2]]
             con_l = tf.concat([tf.zeros(shape), output_fw[:, :-1]], axis=1, name="context_left")
             con_r = tf.concat([output_bw[:, 1:], tf.zeros(shape)], axis=1, name="context_right")
 
