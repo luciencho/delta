@@ -113,7 +113,7 @@ class SoloModel(RetrievalModel):
         return features
 
     def encode_layer(self, features):
-        with tf.variable_scope('encode_layer', reuse=True):
+        with tf.variable_scope('encode_layer'):
             if self.hparam.encode_type == 'bidirectional_rnn':
                 _, features['enc_x'] = common_layers.bidirectional_rnn(
                     features['emb_x'],
@@ -123,6 +123,7 @@ class SoloModel(RetrievalModel):
                     self.hparam.rnn_type,
                     features['keep_prob'],
                     'text_representation')
+                tf.get_variable_scope().reuse_variables()
                 _, features['enc_y'] = common_layers.bidirectional_rnn(
                     features['emb_y'],
                     features['y_lens'],
@@ -139,6 +140,7 @@ class SoloModel(RetrievalModel):
                     self.hparam.hidden,
                     features['keep_prob'],
                     'text_representation')
+                tf.get_variable_scope().reuse_variables()
                 features['enc_y'] = common_layers.rcnn(
                     features['emb_y'],
                     features['y_lens'],
