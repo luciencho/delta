@@ -10,7 +10,7 @@ import tensorflow as tf
 _allowed_rnn_type = dict(
     lstm=tf.contrib.rnn.LSTMCell,
     gru=tf.contrib.rnn.GRUCell,
-    rnn=tf.contrib.rnn.RNNCell)
+    rnn=tf.contrib.rnn.BasicRNNCell)
 
 
 def length_last_axis(tensor):
