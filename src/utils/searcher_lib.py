@@ -6,6 +6,7 @@ from __future__ import print_function
 import tensorflow as tf
 from annoy import AnnoyIndex
 
+from src import utils
 from src.traditional.keyword import load_keywords
 from src.traditional.model import LDAModel, TFIDFModel
 
@@ -30,12 +31,14 @@ class DualEncoderSearcher(Searcher):
         saver.restore(self.sess, args.path['model'])
 
     def search_line(self, line, num=15):
-        input_x = self.infer_batch.encode_line(line)
+        input_x = self.infer_batch.encode_x(line)
         infer_features = {'input_x_ph': [input_x], 'keep_prob_ph': 1.0}
         infer_fetches, infer_feed = self.model.infer_step(infer_features)
-        vector = self.sess.run(infer_fetches, infer_feed)[0][0]
-        candidate_ids = self.ann.get_nns_by_vector(vector, num)
-        return candidate_ids
+        vec = self.sess.run(infer_fetches, infer_feed)[0][0]
+        ids = self.ann.get_nns_by_vector(vec, num)
+        vecs = [self.ann.get_item_vector(i) for i in ids]
+        sim = [utils.cosine_similarity(vec, i) for i in vecs]
+        return list(zip(ids, sim))
 
 
 class LDASearcher(Searcher):

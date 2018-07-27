@@ -121,8 +121,7 @@ class SoloModel(RetrievalModel):
                     self.hparam.hidden,
                     self.hparam.num_layers,
                     self.hparam.rnn_type,
-                    features['keep_prob'],
-                    'text_representation')
+                    features['keep_prob'])
                 tf.get_variable_scope().reuse_variables()
                 _, features['enc_y'] = common_layers.bidirectional_rnn(
                     features['emb_y'],
@@ -130,8 +129,7 @@ class SoloModel(RetrievalModel):
                     self.hparam.hidden,
                     self.hparam.num_layers,
                     self.hparam.rnn_type,
-                    features['keep_prob'],
-                    'text_representation')
+                    features['keep_prob'])
             elif self.hparam.encode_type == 'rcnn':
                 features['enc_x'] = common_layers.rcnn(
                     features['emb_x'],

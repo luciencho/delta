@@ -6,6 +6,7 @@ from __future__ import print_function
 import os
 import time
 import shutil
+import math
 
 
 def verbose(line):
@@ -52,3 +53,14 @@ def write_result(args, loss):
     lines.append('lowest loss: [{}]'.format(loss))
     verbose('lowest loss: [{}]'.format(loss))
     write_lines(file_path, lines)
+
+
+def cosine_similarity(v1, v2):
+    sum_xx, sum_xy, sum_yy = [0] * 3
+    for i in range(len(v1)):
+        x = v1[i]
+        y = v2[i]
+        sum_xx += x * x
+        sum_yy += y * y
+        sum_xy += x * y
+    return sum_xy / math.sqrt(sum_xx * sum_yy)

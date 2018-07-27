@@ -39,12 +39,12 @@ def _fake_args():
 
     class FakeArgs(object):
         if platform.system() == 'Windows':
-            tmp_dir = r'E:\competition\jddc_v2\tmp_belta'
+            tmp_dir = r'E:\competition\jddc_v2\tmp'
             model_dir = r'E:\competition\jddc_v2\models'
         else:
             tmp_dir = r'/submission/tmp'
             model_dir = r'/submission/models'
-        hparams = 'penta_lstm'
+        hparams = 'solo_lstm'
 
     return FakeArgs()
 

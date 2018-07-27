@@ -88,7 +88,11 @@ class LDAModel(SentSimModel):
             raise ValueError('Files under directory {} disappear'.format(self.model_dir))
 
     def search(self, toks, num):
-        return self.ann.get_nns_by_vector(self.get(toks), num)
+        vec = self.get(toks)
+        ids = self.ann.get_nns_by_vector(vec, num)
+        vecs = [self.ann.get_item_vector(i) for i in ids]
+        sim = [utils.cosine_similarity(vec, i) for i in vecs]
+        return list(zip(ids, sim))
 
 
 class TFIDFModel(SentSimModel):
@@ -115,7 +119,7 @@ class TFIDFModel(SentSimModel):
 
         utils.verbose('Start building tfidf index')
         self.index = similarities.SparseMatrixSimilarity(
-            self.model[self.corpus], num_features=500)
+            self.model[self.corpus], num_features=len(self.dict.dfs))
         # self.index = similarities.MatrixSimilarity(self.model[self.corpus])
         self.index.save(self.paths['index'])
 

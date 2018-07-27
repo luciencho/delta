@@ -237,8 +237,8 @@ def rcnn(inputs, seq_lens, rnn_hidden, hidden, keep_prob, scope=None):
 
         with tf.name_scope("context"):
             shape = [tf.shape(output_fw)[0], 1, tf.shape(output_fw)[2]]
-            con_l = tf.concat([tf.zeros(shape), output_fw[:, :-1]], axis=1, name="context_left")
-            con_r = tf.concat([output_bw[:, 1:], tf.zeros(shape)], axis=1, name="context_right")
+            con_l = tf.concat([tf.zeros(shape), output_fw[:, 1:]], axis=1, name="context_left")
+            con_r = tf.concat([output_bw[:, :-1], tf.zeros(shape)], axis=1, name="context_right")
 
         with tf.name_scope("word_level"):
             x = tf.concat([con_l, inputs, con_r], axis=2)
@@ -248,8 +248,9 @@ def rcnn(inputs, seq_lens, rnn_hidden, hidden, keep_prob, scope=None):
             w = tf.get_variable('w', [embedding_size, hidden], tf.float32,
                                 initializer=tf.contrib.layers.xavier_initializer())
             b = tf.get_variable('b', [hidden], tf.float32,
-                                initializer=tf.truncated_normal_initializer())
+                                initializer=tf.constant_initializer(0.1))
             out = tf.einsum('aij,jk->aik', x, w) + b
             out = tf.reduce_max(out, axis=1)
+            out = layer_norm(tf.nn.softmax(out))
 
     return out
