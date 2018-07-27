@@ -162,6 +162,7 @@ class SoloModel(RetrievalModel):
                 initializer=tf.truncated_normal_initializer())
             transformed_enc_y = tf.matmul(features['enc_y'], features['matrix'])
             if self.hparam.use_layer_norm:
+                transformed_enc_x = common_layers.layer_norm(transformed_enc_x)
                 transformed_enc_y = common_layers.layer_norm(transformed_enc_y)
             features['logits'] = tf.matmul(
                 transformed_enc_y, transformed_enc_x, transpose_b=True)

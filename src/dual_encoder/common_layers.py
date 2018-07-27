@@ -80,7 +80,7 @@ def bidirectional_rnn(inputs, seq_lens, hidden, num_layers=1,
             fw_cell, bw_cell, inputs, seq_lens, dtype=tf.float32)
     if rnn_type.lower() == 'lstm':
         return outputs, states[-1][-1].h
-    elif rnn_type.lower() == 'gru':
+    else:
         return outputs, states[-1][-1]
 
 
@@ -233,7 +233,7 @@ def rcnn(inputs, seq_lens, rnn_hidden, hidden, keep_prob, scope=None):
     """
     with tf.variable_scope(scope or "rcnn"):
         (output_fw, output_bw), _ = bidirectional_rnn(
-            inputs, seq_lens, rnn_hidden, 1, 'lstm', keep_prob, "rcnn_bd_lstm")
+            inputs, seq_lens, rnn_hidden, 1, 'rnn', keep_prob, "rcnn_bd_lstm")
 
         with tf.name_scope("context"):
             shape = [tf.shape(output_fw)[0], 1, tf.shape(output_fw)[2]]

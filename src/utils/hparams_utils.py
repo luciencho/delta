@@ -48,5 +48,7 @@ def lstm_ln():
 def lstm_rcnn():
     hparams = lstm()
     hparams.encode_type = 'rcnn'
-    hparams.max_clip = 0.1
+    hparams.max_clip = 0.5
+    hparams.learning_rate = 5e-4
+    hparams.use_layer_norm = False
     return hparams
